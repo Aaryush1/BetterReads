@@ -48,9 +48,10 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Redirect authenticated users away from auth pages
+  // Redirect authenticated users away from auth pages (but allow check-email)
   if (
     user &&
+    !pathname.startsWith("/signup/check-email") &&
     authPaths.some((path) => pathname.startsWith(path))
   ) {
     const url = request.nextUrl.clone();
