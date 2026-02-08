@@ -2,9 +2,9 @@
 
 ## Project Overview
 
-BetterReads is a Next.js application built with TypeScript and Tailwind CSS.
+BetterReads is a modern Goodreads alternative for avid readers. Fast, beautiful, and focused on the core reading experience — book search, shelves, and a clean UI inspired by Literal and StoryGraph.
 
-**Tech Stack:** Next.js (App Router), React, TypeScript, Tailwind CSS
+**Tech Stack:** Next.js (App Router), React, TypeScript, Tailwind CSS, Supabase (Auth + Postgres), Google Books API + Open Library API
 
 ---
 
@@ -14,7 +14,7 @@ Every feature, fix, or significant change follows this strict process. No code i
 
 ### Step 1: PRD (Product Requirements Document)
 
-**Location:** `docs/<feature-name>/prd/`
+**Location:** `docs/<feature-name>/prd.md`
 
 Before any code, create a PRD that captures:
 
@@ -28,7 +28,7 @@ The PRD is a conversation with the user. Do NOT assume intent — ask clarifying
 
 ### Step 2: Technical Plan
 
-**Location:** `docs/<feature-name>/plan/`
+**Location:** `docs/<feature-name>/plan.md`
 
 Once the PRD is approved, create a technical plan that includes:
 
@@ -76,12 +76,15 @@ Break the technical plan into sequential phases. Each phase gets its own file (`
 ```
 docs/
 ├── mvp/                    # First project: MVP
-│   ├── prd/                # Product requirements
-│   ├── plan/               # Technical architecture & plan
+│   ├── prd.md              # Product requirements document
+│   ├── plan.md             # Technical architecture & plan
 │   └── tasks/              # Phased task breakdown
+│       ├── phase-01.md
+│       ├── phase-02.md
+│       └── ...
 ├── <next-feature>/         # Future features follow same structure
-│   ├── prd/
-│   ├── plan/
+│   ├── prd.md
+│   ├── plan.md
 │   └── tasks/
 ```
 
@@ -103,11 +106,12 @@ docs/
 1. **Always read this file first** at the start of any session.
 2. **Follow the PRD → Plan → Tasks workflow.** No exceptions.
 3. **Update task checkboxes** in `docs/<feature>/tasks/` as you complete work.
-4. **Update this CLAUDE.md** when significant architectural decisions, new conventions, or major changes are made to the project. Examples:
+4. **Update this CLAUDE.md** when significant changes are made to the project:
    - New libraries or services added to the stack
    - New folder conventions or patterns established
    - Changes to the development workflow
    - Environment setup changes
+   - Major architectural decisions
 5. **Never write code without an approved PRD and plan.** If they don't exist yet, create them first and get user approval.
 6. **Ask, don't assume.** When requirements are ambiguous, ask the user before proceeding.
 7. **Test before marking complete.** Every phase must pass its testing checklist.
@@ -117,4 +121,10 @@ docs/
 ## Current State
 
 - **Active Project:** MVP (see `docs/mvp/`)
-- **Status:** PRD phase — defining requirements with user
+- **Status:** Technical plan complete — ready for Phase 1 implementation
+- **Current Phase:** Phase 1 — Foundation (NOT STARTED)
+- **Docs:**
+  - PRD: `docs/mvp/prd.md` (APPROVED)
+  - Design: `docs/mvp/design-vision.html`
+  - Plan: `docs/mvp/plan.md`
+  - Tasks: `docs/mvp/tasks/phase-01.md` through `phase-06.md`

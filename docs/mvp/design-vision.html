@@ -1,0 +1,2482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BetterReads — Design Vision</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       DESIGN TOKENS
+       ============================================ */
+    :root {
+      --bg-warm:       #F8FAFC;
+      --bg-cream:      #FFFFFF;
+      --bg-card:       #FFFFFF;
+      --bg-dark:       #0F172A;
+      --bg-dark-card:  #1E293B;
+
+      --green-deep:    #059669;
+      --green-medium:  #10B981;
+      --green-light:   #D1FAE5;
+      --green-subtle:  #ECFDF5;
+
+      --amber:         #F59E0B;
+      --amber-light:   #FEF3C7;
+      --copper:        #D97706;
+
+      --text-primary:  #0F172A;
+      --text-secondary:#475569;
+      --text-tertiary: #94A3B8;
+      --text-inverse:  #FFFFFF;
+
+      --border:        #E2E8F0;
+      --border-light:  #F1F5F9;
+
+      --font-display:  'Fraunces', Georgia, serif;
+      --font-body:     'Bricolage Grotesque', system-ui, sans-serif;
+
+      --radius-sm:     8px;
+      --radius-md:     12px;
+      --radius-lg:     16px;
+      --radius-xl:     24px;
+
+      --shadow-sm:     0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+      --shadow-md:     0 4px 16px rgba(15,23,42,0.08), 0 2px 4px rgba(15,23,42,0.04);
+      --shadow-lg:     0 16px 48px rgba(15,23,42,0.10), 0 4px 12px rgba(15,23,42,0.06);
+      --shadow-book:   4px 8px 24px rgba(15,23,42,0.14), 1px 2px 6px rgba(15,23,42,0.08);
+    }
+
+    /* ============================================
+       DARK MODE TOKENS
+       ============================================ */
+    .dark {
+      --bg-warm:       #020617;
+      --bg-cream:      #0F172A;
+      --bg-card:       #1E293B;
+      --bg-dark:       #000000;
+      --bg-dark-card:  #0F172A;
+
+      --green-deep:    #10B981;
+      --green-medium:  #34D399;
+      --green-light:   rgba(16,185,129,0.12);
+      --green-subtle:  rgba(16,185,129,0.06);
+
+      --amber:         #FBBF24;
+      --amber-light:   rgba(251,191,36,0.12);
+      --copper:        #F59E0B;
+
+      --text-primary:  #F1F5F9;
+      --text-secondary:#94A3B8;
+      --text-tertiary: #64748B;
+      --text-inverse:  #0F172A;
+
+      --border:        #334155;
+      --border-light:  #1E293B;
+
+      --shadow-sm:     0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.15);
+      --shadow-md:     0 4px 16px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.15);
+      --shadow-lg:     0 16px 48px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+      --shadow-book:   4px 8px 24px rgba(0,0,0,0.3), 1px 2px 6px rgba(0,0,0,0.2);
+    }
+
+    /* Dark mode overrides for elements that use hardcoded colors */
+    .dark .form-group input {
+      background: #1E293B;
+      border-color: #334155;
+      color: #F1F5F9;
+    }
+
+    .dark .form-group input:focus {
+      background: #0F172A;
+      border-color: #10B981;
+    }
+
+    .dark .form-group input::placeholder {
+      color: #64748B;
+    }
+
+    .dark .nav-search {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    .dark .nav-search input {
+      color: #F1F5F9;
+    }
+
+    .dark .auth-visual {
+      background: #0F172A;
+    }
+
+    .dark .search-result-card {
+      background: #1E293B;
+      border-color: #334155;
+    }
+
+    .dark .btn-shelf-secondary {
+      background: #1E293B;
+      border-color: #334155;
+      color: #94A3B8;
+    }
+
+    .dark .book-card-cover::after,
+    .dark .reco-card-cover::after {
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+    }
+
+    .dark .avatar {
+      background: rgba(251,191,36,0.12);
+      color: #FBBF24;
+    }
+
+    .dark .screen-label {
+      background: rgba(251,191,36,0.12);
+      color: #FBBF24;
+    }
+
+    /* Dark mode toggle */
+    .theme-toggle {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px;
+      padding: 4px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .theme-toggle-option {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 999px;
+      color: rgba(250,250,250,0.4);
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .theme-toggle-option.active {
+      background: rgba(255,255,255,0.12);
+      color: #FFFFFF;
+    }
+
+    /* ============================================
+       RESET & BASE
+       ============================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--text-primary);
+      background: var(--bg-warm);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Grain texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.015;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 200px;
+    }
+
+    /* ============================================
+       SCREEN NAVIGATION
+       ============================================ */
+    .screen-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: var(--bg-dark);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 48px;
+      overflow-x: auto;
+    }
+
+    .screen-nav-label {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-right: 16px;
+      white-space: nowrap;
+    }
+
+    .screen-nav a {
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(250,247,242,0.5);
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .screen-nav a:hover {
+      color: var(--text-inverse);
+      background: rgba(255,255,255,0.06);
+    }
+
+    /* ============================================
+       SECTION WRAPPER
+       ============================================ */
+    .screen-section {
+      min-height: 100vh;
+      padding: 80px 0 60px;
+      position: relative;
+    }
+
+    .screen-section + .screen-section {
+      border-top: 1px solid var(--border);
+    }
+
+    .screen-label {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--amber);
+      background: var(--amber-light);
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 32px;
+      margin-left: 48px;
+    }
+
+    /* ============================================
+       1. LANDING PAGE
+       ============================================ */
+    .landing {
+      background: var(--bg-cream);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* — Landing Nav — */
+    .landing-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .landing-logo {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--green-deep);
+      font-style: italic;
+      letter-spacing: -0.02em;
+    }
+
+    .landing-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .landing-nav-links a {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      transition: all 0.2s;
+    }
+
+    .landing-nav-links a:hover {
+      color: var(--text-primary);
+      background: rgba(0,0,0,0.03);
+    }
+
+    .landing-nav-links .btn-primary {
+      background: var(--green-deep);
+      color: var(--text-inverse);
+      padding: 8px 20px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .landing-nav-links .btn-primary:hover {
+      background: var(--green-medium);
+      color: white;
+    }
+
+    /* — Hero — */
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 48px 80px;
+      gap: 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero-text {
+      flex: 1;
+      max-width: 480px;
+    }
+
+    .hero-text h1 {
+      font-family: var(--font-display);
+      font-size: 52px;
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+    }
+
+    .hero-text h1 em {
+      font-style: italic;
+      color: var(--green-deep);
+    }
+
+    .hero-text p {
+      font-size: 17px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 32px;
+      max-width: 400px;
+    }
+
+    .hero-cta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-large {
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 14px 32px;
+      border-radius: 999px;
+      text-decoration: none;
+      transition: all 0.25s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-large.primary {
+      background: var(--green-deep);
+      color: white;
+      box-shadow: 0 2px 12px rgba(5,150,105,0.35);
+    }
+
+    .btn-large.primary:hover {
+      background: var(--green-medium);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(5,150,105,0.35);
+    }
+
+    .btn-large.secondary {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1.5px solid var(--border);
+    }
+
+    .btn-large.secondary:hover {
+      border-color: var(--text-secondary);
+      color: var(--text-primary);
+    }
+
+    /* — Book Stack Visual — */
+    .hero-visual {
+      flex: 0 0 auto;
+      position: relative;
+      width: 380px;
+      height: 440px;
+    }
+
+    .hero-book {
+      position: absolute;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-book);
+      overflow: hidden;
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .hero-book:hover {
+      transform: translateY(-8px) rotate(0deg) !important;
+      z-index: 10;
+    }
+
+    .hero-book img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .hero-book:nth-child(1) {
+      width: 160px; height: 240px;
+      top: 30px; left: 0;
+      transform: rotate(-6deg);
+      z-index: 3;
+    }
+
+    .hero-book:nth-child(2) {
+      width: 170px; height: 255px;
+      top: 10px; left: 120px;
+      transform: rotate(2deg);
+      z-index: 4;
+    }
+
+    .hero-book:nth-child(3) {
+      width: 150px; height: 225px;
+      top: 60px; left: 250px;
+      transform: rotate(5deg);
+      z-index: 2;
+    }
+
+    .hero-book:nth-child(4) {
+      width: 140px; height: 210px;
+      top: 200px; left: 50px;
+      transform: rotate(-3deg);
+      z-index: 5;
+    }
+
+    .hero-book:nth-child(5) {
+      width: 155px; height: 232px;
+      top: 190px; left: 200px;
+      transform: rotate(4deg);
+      z-index: 1;
+    }
+
+    .book-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
+      padding: 16px;
+    }
+
+    .book-placeholder span {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.9);
+      line-height: 1.2;
+    }
+
+    /* — Features Strip — */
+    .features-strip {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      padding: 48px;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--green-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .feature-item h3 {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .feature-item p {
+      font-size: 13px;
+      color: var(--text-tertiary);
+    }
+
+    /* ============================================
+       2. AUTH PAGES
+       ============================================ */
+    .auth-section {
+      background: var(--bg-warm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .auth-container {
+      display: flex;
+      gap: 0;
+      max-width: 880px;
+      width: 100%;
+      margin: 0 48px;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .auth-visual {
+      flex: 0 0 360px;
+      background: var(--green-deep);
+      padding: 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-visual::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at top right, rgba(16,185,129,0.15), transparent 50%), radial-gradient(ellipse at bottom left, rgba(245,158,11,0.1), transparent 50%);
+    }
+
+    .auth-visual-logo {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 600;
+      font-style: italic;
+      color: rgba(255,255,255,0.9);
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-visual-quote {
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-visual-quote blockquote {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 300;
+      font-style: italic;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .auth-visual-quote cite {
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-style: normal;
+      color: rgba(255,255,255,0.45);
+      font-weight: 500;
+    }
+
+    .auth-form-panel {
+      flex: 1;
+      padding: 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .auth-form-panel h2 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+    }
+
+    .auth-form-panel .subtitle {
+      font-size: 14px;
+      color: var(--text-tertiary);
+      margin-bottom: 32px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 15px;
+      color: var(--text-primary);
+      background: var(--bg-cream);
+      transition: all 0.2s;
+      outline: none;
+    }
+
+    .form-group input:focus {
+      border-color: var(--green-deep);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(5,150,105,0.15);
+    }
+
+    .form-group input::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: var(--green-deep);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+
+    .btn-submit:hover {
+      background: var(--green-medium);
+    }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 14px;
+      color: var(--text-tertiary);
+    }
+
+    .auth-footer a {
+      color: var(--green-deep);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    /* ============================================
+       3. APP SHELL + LIBRARY / SHELVES
+       ============================================ */
+    .app-section {
+      background: var(--bg-cream);
+    }
+
+    .app-shell {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* — App Nav — */
+    .app-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: 36px;
+    }
+
+    .app-nav-left {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .app-logo {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--green-deep);
+    }
+
+    .app-nav-tabs {
+      display: flex;
+      gap: 4px;
+    }
+
+    .app-nav-tabs a {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 999px;
+      transition: all 0.2s;
+    }
+
+    .app-nav-tabs a.active {
+      color: var(--green-deep);
+      background: var(--green-light);
+      font-weight: 600;
+    }
+
+    .app-nav-tabs a:hover:not(.active) {
+      color: var(--text-secondary);
+      background: rgba(0,0,0,0.03);
+    }
+
+    .app-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* — Search in Nav — */
+    .nav-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 16px;
+      width: 260px;
+      transition: all 0.2s;
+    }
+
+    .nav-search:focus-within {
+      border-color: var(--green-deep);
+      box-shadow: 0 0 0 3px rgba(5,150,105,0.12);
+      width: 320px;
+    }
+
+    .nav-search-icon {
+      color: var(--text-tertiary);
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .nav-search input {
+      border: none;
+      background: transparent;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text-primary);
+      outline: none;
+      width: 100%;
+    }
+
+    .nav-search input::placeholder { color: var(--text-tertiary); }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: var(--amber-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--copper);
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+    }
+
+    .avatar:hover {
+      box-shadow: 0 0 0 2px var(--amber);
+    }
+
+    /* — Library Header — */
+    .library-header {
+      margin-bottom: 32px;
+    }
+
+    .library-header h1 {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .library-header p {
+      font-size: 14px;
+      color: var(--text-tertiary);
+    }
+
+    /* — Shelf Tabs — */
+    .shelf-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 28px;
+    }
+
+    .shelf-tab {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      background: transparent;
+      border: 1.5px solid transparent;
+      padding: 9px 20px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .shelf-tab:hover {
+      color: var(--text-secondary);
+      background: rgba(0,0,0,0.02);
+    }
+
+    .shelf-tab.active {
+      color: var(--green-deep);
+      background: var(--green-light);
+      border-color: rgba(5,150,105,0.15);
+      font-weight: 600;
+    }
+
+    .shelf-count {
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(0,0,0,0.06);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .shelf-tab.active .shelf-count {
+      background: rgba(5,150,105,0.15);
+      color: var(--green-deep);
+    }
+
+    /* — Book Grid — */
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 24px;
+      padding-bottom: 48px;
+    }
+
+    .book-card {
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .book-card:hover {
+      transform: translateY(-6px);
+    }
+
+    .book-card-cover {
+      aspect-ratio: 2/3;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-book);
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .book-card-cover::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-md);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+      pointer-events: none;
+    }
+
+    .book-card-cover .cover-art {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-end;
+      padding: 16px;
+    }
+
+    .book-card-cover .cover-art .cover-title {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      line-height: 1.2;
+    }
+
+    .book-card-cover .cover-art .cover-author {
+      font-family: var(--font-body);
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      margin-top: 4px;
+      letter-spacing: 0.03em;
+    }
+
+    .book-card h4 {
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.3;
+      margin-bottom: 2px;
+    }
+
+    .book-card .book-author {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    /* ============================================
+       4. SEARCH RESULTS
+       ============================================ */
+    .search-section {
+      background: var(--bg-cream);
+    }
+
+    .search-header {
+      margin-bottom: 28px;
+    }
+
+    .search-header h2 {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .search-header h2 span {
+      color: var(--text-tertiary);
+      font-style: italic;
+    }
+
+    .search-meta {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+    }
+
+    .search-results-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding-bottom: 48px;
+    }
+
+    .search-result-card {
+      display: flex;
+      gap: 20px;
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-light);
+      transition: all 0.25s;
+      cursor: pointer;
+    }
+
+    .search-result-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--border);
+      transform: translateX(4px);
+    }
+
+    .search-result-cover {
+      flex: 0 0 80px;
+      height: 120px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      box-shadow: var(--shadow-book);
+    }
+
+    .search-result-cover .cover-art {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      padding: 8px;
+    }
+
+    .search-result-cover .cover-art .cover-title {
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 600;
+      color: white;
+      line-height: 1.2;
+    }
+
+    .search-result-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .search-result-info h3 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      margin-bottom: 2px;
+    }
+
+    .search-result-info .result-author {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .search-result-info .result-desc {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .search-result-info .result-meta {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 8px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .search-result-action {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-shelf-add {
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--green-deep);
+      background: var(--green-light);
+      border: 1.5px solid rgba(5,150,105,0.12);
+      padding: 8px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-shelf-add:hover {
+      background: var(--green-deep);
+      color: white;
+      border-color: var(--green-deep);
+    }
+
+    /* ============================================
+       5. BOOK DETAIL
+       ============================================ */
+    .detail-section {
+      background: var(--bg-cream);
+    }
+
+    .book-detail {
+      display: flex;
+      gap: 48px;
+      padding-bottom: 48px;
+    }
+
+    .book-detail-cover {
+      flex: 0 0 240px;
+    }
+
+    .book-detail-cover-img {
+      width: 240px;
+      height: 360px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg), var(--shadow-book);
+      position: relative;
+    }
+
+    .book-detail-cover-img .cover-art {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-end;
+      padding: 24px;
+    }
+
+    .book-detail-cover-img .cover-art .cover-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 600;
+      color: white;
+      line-height: 1.2;
+    }
+
+    .book-detail-cover-img .cover-art .cover-author {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      margin-top: 6px;
+    }
+
+    .book-detail-shelf-actions {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-shelf-primary {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      background: var(--green-deep);
+      border: none;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-shelf-primary:hover {
+      background: var(--green-medium);
+    }
+
+    .btn-shelf-secondary {
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: white;
+      border: 1.5px solid var(--border);
+      padding: 10px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .btn-shelf-secondary:hover {
+      border-color: var(--text-secondary);
+    }
+
+    .book-detail-info {
+      flex: 1;
+    }
+
+    .book-detail-info h1 {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+    .book-detail-author {
+      font-size: 17px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    .book-detail-author a {
+      color: var(--green-deep);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .book-detail-meta {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 28px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .meta-item .meta-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .meta-item .meta-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .book-detail-description h3 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    .book-detail-description p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+
+    /* ============================================
+       6. DESIGN TOKENS SHOWCASE
+       ============================================ */
+    .tokens-section {
+      background: var(--bg-warm);
+    }
+
+    .tokens-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 48px 48px;
+    }
+
+    .token-group h3 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+
+    .color-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .color-swatch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .color-swatch .swatch {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .color-swatch .swatch-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-align: center;
+    }
+
+    .color-swatch .swatch-hex {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      font-family: monospace;
+    }
+
+    .type-samples {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .type-sample {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .type-sample .sample-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    .type-sample.display-xl {
+      font-family: var(--font-display);
+      font-size: 48px;
+      font-weight: 400;
+      letter-spacing: -0.03em;
+    }
+
+    .type-sample.display-lg {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+    }
+
+    .type-sample.display-md {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 500;
+    }
+
+    .type-sample.body-lg {
+      font-family: var(--font-body);
+      font-size: 17px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .type-sample.body-md {
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .type-sample.label {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+
+    /* ============================================
+       STAR RATINGS
+       ============================================ */
+    .star-rating {
+      display: inline-flex;
+      gap: 2px;
+      align-items: center;
+    }
+
+    .star-rating .star {
+      color: var(--border);
+      font-size: 14px;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+
+    .star-rating .star.filled {
+      color: var(--amber);
+    }
+
+    .star-rating-lg .star {
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .star-rating-lg .star:hover,
+    .star-rating-lg .star:hover ~ .star-placeholder { /* visual only for mockup */
+      color: var(--amber);
+    }
+
+    .star-rating-sm {
+      margin-top: 4px;
+    }
+
+    .star-rating-sm .star {
+      font-size: 12px;
+    }
+
+    .star-label {
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-left: 8px;
+    }
+
+    /* Interactive rating on detail page */
+    .rating-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .rating-section .rating-prompt {
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* ============================================
+       RECOMMENDATIONS / DISCOVER
+       ============================================ */
+    .discover-section {
+      background: var(--bg-cream);
+    }
+
+    .discover-header {
+      margin-bottom: 36px;
+    }
+
+    .discover-header h1 {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .discover-header p {
+      font-size: 14px;
+      color: var(--text-tertiary);
+    }
+
+    .reco-row {
+      margin-bottom: 48px;
+    }
+
+    .reco-row-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .reco-row-header h2 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+
+    .reco-row-header .reco-reason {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      font-style: italic;
+    }
+
+    .reco-row-header .see-all {
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--green-deep);
+      text-decoration: none;
+      padding: 4px 12px;
+      border-radius: 999px;
+      transition: all 0.2s;
+    }
+
+    .reco-row-header .see-all:hover {
+      background: var(--green-light);
+    }
+
+    .reco-scroll {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scroll-snap-type: x mandatory;
+    }
+
+    .reco-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .reco-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .reco-scroll::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 999px;
+    }
+
+    .reco-card {
+      flex: 0 0 160px;
+      scroll-snap-align: start;
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .reco-card:hover {
+      transform: translateY(-6px);
+    }
+
+    .reco-card-cover {
+      aspect-ratio: 2/3;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-book);
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .reco-card-cover::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-md);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+      pointer-events: none;
+    }
+
+    .reco-card-cover .cover-art {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-end;
+      padding: 14px;
+    }
+
+    .reco-card-cover .cover-art .cover-title {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+      line-height: 1.2;
+    }
+
+    .reco-card-cover .cover-art .cover-author {
+      font-family: var(--font-body);
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      margin-top: 3px;
+    }
+
+    .reco-card h4 {
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.3;
+      margin-bottom: 2px;
+    }
+
+    .reco-card .book-author {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .reco-card .reco-add-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--green-deep);
+      margin-top: 6px;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .reco-card .reco-add-btn:hover {
+      color: var(--green-medium);
+    }
+
+    /* ============================================
+       ANIMATIONS
+       ============================================ */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .animate-in {
+      animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+  </style>
+</head>
+<body>
+
+  <!-- ========== SCREEN NAV ========== -->
+  <nav class="screen-nav">
+    <span class="screen-nav-label">Screens</span>
+    <a href="#landing">Landing</a>
+    <a href="#auth">Auth</a>
+    <a href="#library">Library</a>
+    <a href="#search">Search</a>
+    <a href="#detail">Book Detail</a>
+    <a href="#discover">Discover</a>
+    <a href="#tokens">Design Tokens</a>
+    <div class="theme-toggle" id="themeToggle">
+      <span class="theme-toggle-option active" data-theme="light">Light</span>
+      <span class="theme-toggle-option" data-theme="dark">Dark</span>
+    </div>
+  </nav>
+
+  <!-- ========== 1. LANDING PAGE ========== -->
+  <section id="landing" class="screen-section landing">
+    <span class="screen-label">01 / Landing Page</span>
+
+    <nav class="landing-nav animate-in">
+      <div class="landing-logo">BetterReads</div>
+      <div class="landing-nav-links">
+        <a href="#discover">Discover</a>
+        <a href="#auth">Log in</a>
+        <a href="#auth" class="btn-primary">Get started</a>
+      </div>
+    </nav>
+
+    <div class="hero">
+      <div class="hero-text">
+        <h1 class="animate-in delay-1">Your reading life,<br><em>beautifully organized.</em></h1>
+        <p class="animate-in delay-2">Track what you're reading, curate your shelves, and finally leave Goodreads behind. Built for readers who care about the experience.</p>
+        <div class="hero-cta animate-in delay-3">
+          <a href="#auth" class="btn-large primary">Start reading &rarr;</a>
+          <a href="#library" class="btn-large secondary">See how it works</a>
+        </div>
+      </div>
+
+      <div class="hero-visual animate-in delay-4">
+        <div class="hero-book">
+          <div class="book-placeholder" style="background: linear-gradient(145deg, #8B4513, #D2691E);">
+            <span>Tomorrow, and Tomorrow</span>
+          </div>
+        </div>
+        <div class="hero-book">
+          <div class="book-placeholder" style="background: linear-gradient(145deg, #1a3a4a, #2d6a7a);">
+            <span>All the Light We Cannot See</span>
+          </div>
+        </div>
+        <div class="hero-book">
+          <div class="book-placeholder" style="background: linear-gradient(145deg, #2D4A37, #5a8a6a);">
+            <span>Pachinko</span>
+          </div>
+        </div>
+        <div class="hero-book">
+          <div class="book-placeholder" style="background: linear-gradient(145deg, #4a2040, #8a4070);">
+            <span>The Goldfinch</span>
+          </div>
+        </div>
+        <div class="hero-book">
+          <div class="book-placeholder" style="background: linear-gradient(145deg, #3a3020, #6a5a30);">
+            <span>Piranesi</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="features-strip animate-in delay-5">
+      <div class="feature-item">
+        <div class="feature-icon">&#128218;</div>
+        <div>
+          <h3>Smart Shelves</h3>
+          <p>Read, Reading, Want to Read</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">&#128269;</div>
+        <div>
+          <h3>Instant Search</h3>
+          <p>Millions of books, one search</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">&#11088;</div>
+        <div>
+          <h3>Rate &amp; Discover</h3>
+          <p>Rate books, get recommendations</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 2. AUTH ========== -->
+  <section id="auth" class="screen-section auth-section">
+    <span class="screen-label">02 / Authentication</span>
+
+    <div class="auth-container animate-in delay-1">
+      <div class="auth-visual">
+        <div class="auth-visual-logo">BetterReads</div>
+        <div class="auth-visual-quote">
+          <blockquote>&ldquo;A reader lives a thousand lives before he dies. The man who never reads lives only one.&rdquo;</blockquote>
+          <cite>George R.R. Martin</cite>
+        </div>
+      </div>
+      <div class="auth-form-panel">
+        <h2>Welcome back</h2>
+        <p class="subtitle">Sign in to continue to your library</p>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" placeholder="Your password">
+        </div>
+        <button class="btn-submit">Sign in</button>
+
+        <div class="auth-footer">
+          New to BetterReads? <a href="#">Create an account</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 3. LIBRARY / SHELVES ========== -->
+  <section id="library" class="screen-section app-section">
+    <span class="screen-label">03 / Library &amp; Shelves</span>
+
+    <div class="app-shell">
+      <nav class="app-nav animate-in">
+        <div class="app-nav-left">
+          <div class="app-logo">BetterReads</div>
+          <div class="app-nav-tabs">
+            <a href="#" class="active">My Library</a>
+            <a href="#">Discover</a>
+          </div>
+        </div>
+        <div class="app-nav-right">
+          <div class="nav-search">
+            <span class="nav-search-icon">&#128269;</span>
+            <input type="text" placeholder="Search books...">
+          </div>
+          <div class="avatar">A</div>
+        </div>
+      </nav>
+
+      <div class="library-header animate-in delay-1">
+        <h1>My Library</h1>
+        <p>12 books across your shelves</p>
+      </div>
+
+      <div class="shelf-tabs animate-in delay-2">
+        <button class="shelf-tab active">
+          Currently Reading
+          <span class="shelf-count">3</span>
+        </button>
+        <button class="shelf-tab">
+          Want to Read
+          <span class="shelf-count">5</span>
+        </button>
+        <button class="shelf-tab">
+          Read
+          <span class="shelf-count">4</span>
+        </button>
+      </div>
+
+      <div class="book-grid">
+        <div class="book-card animate-in delay-2">
+          <div class="book-card-cover">
+            <div class="cover-art" style="background: linear-gradient(160deg, #1a3a4a, #2d6a7a);">
+              <span class="cover-title">All the Light We Cannot See</span>
+              <span class="cover-author">Anthony Doerr</span>
+            </div>
+          </div>
+          <h4>All the Light We Cannot See</h4>
+          <span class="book-author">Anthony Doerr</span>
+          <div class="star-rating star-rating-sm">
+            <span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star">&#9733;</span>
+          </div>
+        </div>
+
+        <div class="book-card animate-in delay-3">
+          <div class="book-card-cover">
+            <div class="cover-art" style="background: linear-gradient(160deg, #8B4513, #D2691E);">
+              <span class="cover-title">Tomorrow, and Tomorrow, and Tomorrow</span>
+              <span class="cover-author">Gabrielle Zevin</span>
+            </div>
+          </div>
+          <h4>Tomorrow, and Tomorrow...</h4>
+          <span class="book-author">Gabrielle Zevin</span>
+          <div class="star-rating star-rating-sm">
+            <span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span>
+          </div>
+        </div>
+
+        <div class="book-card animate-in delay-4">
+          <div class="book-card-cover">
+            <div class="cover-art" style="background: linear-gradient(160deg, #2D4A37, #5a8a6a);">
+              <span class="cover-title">Pachinko</span>
+              <span class="cover-author">Min Jin Lee</span>
+            </div>
+          </div>
+          <h4>Pachinko</h4>
+          <span class="book-author">Min Jin Lee</span>
+          <div class="star-rating star-rating-sm">
+            <span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star">&#9733;</span>
+          </div>
+        </div>
+
+        <div class="book-card animate-in delay-5">
+          <div class="book-card-cover">
+            <div class="cover-art" style="background: linear-gradient(160deg, #4a2040, #8a4070);">
+              <span class="cover-title">The Goldfinch</span>
+              <span class="cover-author">Donna Tartt</span>
+            </div>
+          </div>
+          <h4>The Goldfinch</h4>
+          <span class="book-author">Donna Tartt</span>
+          <div class="star-rating star-rating-sm">
+            <span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span>
+          </div>
+        </div>
+
+        <div class="book-card animate-in delay-5">
+          <div class="book-card-cover">
+            <div class="cover-art" style="background: linear-gradient(160deg, #3a3020, #6a5a30);">
+              <span class="cover-title">Piranesi</span>
+              <span class="cover-author">Susanna Clarke</span>
+            </div>
+          </div>
+          <h4>Piranesi</h4>
+          <span class="book-author">Susanna Clarke</span>
+          <div class="star-rating star-rating-sm">
+            <span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span>
+          </div>
+        </div>
+
+        <div class="book-card animate-in delay-5">
+          <div class="book-card-cover">
+            <div class="cover-art" style="background: linear-gradient(160deg, #2a1a3a, #5a3a7a);">
+              <span class="cover-title">The Name of the Wind</span>
+              <span class="cover-author">Patrick Rothfuss</span>
+            </div>
+          </div>
+          <h4>The Name of the Wind</h4>
+          <span class="book-author">Patrick Rothfuss</span>
+          <div class="star-rating star-rating-sm">
+            <span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star">&#9733;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 4. SEARCH RESULTS ========== -->
+  <section id="search" class="screen-section search-section">
+    <span class="screen-label">04 / Search Results</span>
+
+    <div class="app-shell">
+      <nav class="app-nav">
+        <div class="app-nav-left">
+          <div class="app-logo">BetterReads</div>
+          <div class="app-nav-tabs">
+            <a href="#">My Library</a>
+            <a href="#" class="active">Discover</a>
+          </div>
+        </div>
+        <div class="app-nav-right">
+          <div class="nav-search" style="border-color: var(--green-deep); box-shadow: 0 0 0 3px rgba(5,150,105,0.12); width: 320px;">
+            <span class="nav-search-icon">&#128269;</span>
+            <input type="text" value="donna tartt">
+          </div>
+          <div class="avatar">A</div>
+        </div>
+      </nav>
+
+      <div class="search-header animate-in delay-1">
+        <h2>Results for <span>&ldquo;donna tartt&rdquo;</span></h2>
+        <p class="search-meta">4 books found</p>
+      </div>
+
+      <div class="search-results-list">
+        <div class="search-result-card animate-in delay-2">
+          <div class="search-result-cover">
+            <div class="cover-art" style="background: linear-gradient(160deg, #4a2040, #8a4070);">
+              <span class="cover-title">The Goldfinch</span>
+            </div>
+          </div>
+          <div class="search-result-info">
+            <h3>The Goldfinch</h3>
+            <div class="result-author">Donna Tartt</div>
+            <div class="star-rating star-rating-sm" style="margin-bottom: 6px;">
+              <span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span>
+              <span class="star-label" style="font-size: 11px;">Your rating</span>
+            </div>
+            <p class="result-desc">A young boy in New York City, abandoned by his mother, is taken in by the family of a wealthy friend. Navigating loss, obsession, and art, he clings to a small Dutch painting as his only anchor.</p>
+            <div class="result-meta">
+              <span>771 pages</span>
+              <span>2013</span>
+              <span>Fiction</span>
+            </div>
+          </div>
+          <div class="search-result-action">
+            <button class="btn-shelf-add">+ Add to shelf</button>
+          </div>
+        </div>
+
+        <div class="search-result-card animate-in delay-3">
+          <div class="search-result-cover">
+            <div class="cover-art" style="background: linear-gradient(160deg, #1a2a3a, #3a5a6a);">
+              <span class="cover-title">The Secret History</span>
+            </div>
+          </div>
+          <div class="search-result-info">
+            <h3>The Secret History</h3>
+            <div class="result-author">Donna Tartt</div>
+            <div class="star-rating star-rating-sm" style="margin-bottom: 6px;">
+              <span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span>
+              <span class="star-label" style="font-size: 11px;">Your rating</span>
+            </div>
+            <p class="result-desc">Under the influence of their charismatic classics professor, a group of students at an elite New England college discover a way of thinking and living that is beautiful and terrifying.</p>
+            <div class="result-meta">
+              <span>559 pages</span>
+              <span>1992</span>
+              <span>Fiction</span>
+            </div>
+          </div>
+          <div class="search-result-action">
+            <button class="btn-shelf-add">+ Add to shelf</button>
+          </div>
+        </div>
+
+        <div class="search-result-card animate-in delay-4">
+          <div class="search-result-cover">
+            <div class="cover-art" style="background: linear-gradient(160deg, #3a2a1a, #7a5a2a);">
+              <span class="cover-title">The Little Friend</span>
+            </div>
+          </div>
+          <div class="search-result-info">
+            <h3>The Little Friend</h3>
+            <div class="result-author">Donna Tartt</div>
+            <p class="result-desc">A twelve-year-old girl in Mississippi sets out to solve the mystery of her brother's murder, uncovering the dark underbelly of her small Southern town.</p>
+            <div class="result-meta">
+              <span>555 pages</span>
+              <span>2002</span>
+              <span>Fiction</span>
+            </div>
+          </div>
+          <div class="search-result-action">
+            <button class="btn-shelf-add">+ Add to shelf</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 5. BOOK DETAIL ========== -->
+  <section id="detail" class="screen-section detail-section">
+    <span class="screen-label">05 / Book Detail</span>
+
+    <div class="app-shell">
+      <nav class="app-nav">
+        <div class="app-nav-left">
+          <div class="app-logo">BetterReads</div>
+          <div class="app-nav-tabs">
+            <a href="#">My Library</a>
+            <a href="#">Discover</a>
+          </div>
+        </div>
+        <div class="app-nav-right">
+          <div class="nav-search">
+            <span class="nav-search-icon">&#128269;</span>
+            <input type="text" placeholder="Search books...">
+          </div>
+          <div class="avatar">A</div>
+        </div>
+      </nav>
+
+      <div class="book-detail">
+        <div class="book-detail-cover animate-in delay-1">
+          <div class="book-detail-cover-img">
+            <div class="cover-art" style="background: linear-gradient(160deg, #1a2a3a, #3a5a6a);">
+              <span class="cover-title">The Secret History</span>
+              <span class="cover-author">Donna Tartt</span>
+            </div>
+          </div>
+          <div class="book-detail-shelf-actions">
+            <button class="btn-shelf-primary">&#43; Want to Read</button>
+            <button class="btn-shelf-secondary">Change shelf &darr;</button>
+          </div>
+        </div>
+
+        <div class="book-detail-info animate-in delay-2">
+          <h1>The Secret History</h1>
+          <div class="book-detail-author">by <a href="#">Donna Tartt</a></div>
+
+          <div class="rating-section">
+            <span class="rating-prompt">Your rating</span>
+            <div class="star-rating star-rating-lg">
+              <span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span>
+            </div>
+            <span class="star-label">5 / 5</span>
+          </div>
+
+          <div class="book-detail-meta">
+            <div class="meta-item">
+              <span class="meta-label">Pages</span>
+              <span class="meta-value">559</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Published</span>
+              <span class="meta-value">September 1992</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Genre</span>
+              <span class="meta-value">Literary Fiction</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">ISBN</span>
+              <span class="meta-value">978-1400031...</span>
+            </div>
+          </div>
+
+          <div class="book-detail-description">
+            <h3>About this book</h3>
+            <p>Under the influence of their charismatic classics professor, a group of clever, eccentric misfits at an elite New England college discover a way of thinking and living that is a world away from the humdrum existence of their contemporaries. But when they go beyond the boundaries of normal morality, their lives are changed profoundly and forever.</p>
+            <br>
+            <p>The Secret History is a riveting, beautifully written novel about the dark side of human nature and the terrible price of privilege. It established Donna Tartt as one of the most significant novelists of her generation, and remains a touchstone of campus fiction that transcends genre.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 6. DISCOVER / RECOMMENDATIONS ========== -->
+  <section id="discover" class="screen-section discover-section">
+    <span class="screen-label">06 / Discover &amp; Recommendations</span>
+
+    <div class="app-shell">
+      <nav class="app-nav animate-in">
+        <div class="app-nav-left">
+          <div class="app-logo">BetterReads</div>
+          <div class="app-nav-tabs">
+            <a href="#">My Library</a>
+            <a href="#" class="active">Discover</a>
+          </div>
+        </div>
+        <div class="app-nav-right">
+          <div class="nav-search">
+            <span class="nav-search-icon">&#128269;</span>
+            <input type="text" placeholder="Search books...">
+          </div>
+          <div class="avatar">A</div>
+        </div>
+      </nav>
+
+      <div class="discover-header animate-in delay-1">
+        <h1>Discover</h1>
+        <p>Books we think you'll love, based on your reading history</p>
+      </div>
+
+      <!-- Row 1: Because you liked X -->
+      <div class="reco-row animate-in delay-2">
+        <div class="reco-row-header">
+          <div>
+            <h2>Because you liked <em style="font-family: var(--font-display); font-style: italic;">The Secret History</em></h2>
+            <span class="reco-reason">Dark academia, campus settings, literary fiction</span>
+          </div>
+          <a href="#" class="see-all">See all &rarr;</a>
+        </div>
+        <div class="reco-scroll">
+          <div class="reco-card">
+            <div class="reco-card-cover">
+              <div class="cover-art" style="background: linear-gradient(160deg, #2a2040, #5a4070);">
+                <span class="cover-title">If We Were Villains</span>
+                <span class="cover-author">M.L. Rio</span>
+              </div>
+            </div>
+            <h4>If We Were Villains</h4>
+            <span class="book-author">M.L. Rio</span>
+            <div class="star-rating star-rating-sm">
+              <span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star">&#9733;</span>
+            </div>
+            <div class="reco-add-btn">+ Add to shelf</div>
+          </div>
+
+          <div class="reco-card">
+            <div class="reco-card-cover">
+              <div class="cover-art" style="background: linear-gradient(160deg, #3a1a1a, #7a3a3a);">
+                <span class="cover-title">The Likeness</span>
+                <span class="cover-author">Tana French</span>
+              </div>
+            </div>
+            <h4>The Likeness</h4>
+            <span class="book-author">Tana French</span>
+            <div class="reco-add-btn">+ Add to shelf</div>
+          </div>
+
+          <div class="reco-card">
+            <div class="reco-card-cover">
+              <div class="cover-art" style="background: linear-gradient(160deg, #1a2a2a, #3a5a5a);">
+                <span class="cover-title">Ninth House</span>
+                <span class="cover-author">Leigh Bardugo</span>
+              </div>
+            </div>
+            <h4>Ninth House</h4>
+            <span class="book-author">Leigh Bardugo</span>
+            <div class="reco-add-btn">+ Add to shelf</div>
+          </div>
+
+          <div class="reco-card">
+            <div class="reco-card-cover">
+              <div class="cover-art" style="background: linear-gradient(160deg, #4a3a1a, #8a7a3a);">
+                <span class="cover-title">Babel</span>
+                <span class="cover-author">R.F. Kuang</span>
+              </div>
+            </div>
+            <h4>Babel</h4>
+            <span class="book-author">R.F. Kuang</span>
+            <div class="star-rating star-rating-sm">
+              <span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span>
+            </div>
+            <div class="reco-add-btn">+ Add to shelf</div>
+          </div>
+
+          <div class="reco-card">
+            <div class="reco-card-cover">
+              <div class="cover-art" style="background: linear-gradient(160deg, #2a3a1a, #5a6a3a);">
+                <span class="cover-title">The Historian</span>
+                <span class="cover-author">Elizabeth Kostova</span>
+              </div>
+            </div>
+            <h4>The Historian</h4>
+            <span class="book-author">Elizabeth Kostova</span>
+            <div class="reco-add-btn">+ Add to shelf</div>
+          </div>
+
+          <div class="reco-card">
+            <div class="reco-card-cover">
+              <div class="cover-art" style="background: linear-gradient(160deg, #1a1a3a, #3a3a7a);">
+                <span class="cover-title">Catherine House</span>
+                <span class="cover-author">Elisabeth Thomas</span>
+              </div>
+            </div>
+            <h4>Catherine House</h4>
+            <span class="book-author">Elisabeth Thomas</span>
+            <div class="reco-add-btn">+ Add to shelf</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Because you liked Y -->
+      <div class="reco-row animate-in delay-3">
+        <div class="reco-row-header">
+          <div>
+            <h2>Because you liked <em style="font-family: var(--font-display); font-style: italic;">Pachinko</em></h2>
+            <span class="reco-reason">Epic family sagas, historical fiction, cultural identity</span>
+          </div>
+          <a href="#" class="see-all">See all &rarr;</a>
+        </div>
+        <div class="reco-scroll">
+          <div class="reco-card">
+            <div class="reco-card-cover">
+              <div class="cover-art" style="background: linear-gradient(160deg, #5a2a1a, #9a5a3a);">
+                <span class="cover-title">Homegoing</span>
+                <span class="cover-author">Yaa Gyasi</span>
+              </div>
+            </div>
+            <h4>Homegoing</h4>
+            <span class="book-author">Yaa Gyasi</span>
+            <div class="reco-add-btn">+ Add to shelf</div>
+          </div>
+
+          <div class="reco-card">
+            <div class="reco-card-cover">
+              <div class="cover-art" style="background: linear-gradient(160deg, #3a2a2a, #6a4a4a);">
+                <span class="cover-title">A Thousand Splendid Suns</span>
+                <span class="cover-author">Khaled Hosseini</span>
+              </div>
+            </div>
+            <h4>A Thousand Splendid Suns</h4>
+            <span class="book-author">Khaled Hosseini</span>
+            <div class="star-rating star-rating-sm">
+              <span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star">&#9733;</span>
+            </div>
+            <div class="reco-add-btn">+ Add to shelf</div>
+          </div>
+
+          <div class="reco-card">
+            <div class="reco-card-cover">
+              <div class="cover-art" style="background: linear-gradient(160deg, #1a3a2a, #3a6a5a);">
+                <span class="cover-title">The God of Small Things</span>
+                <span class="cover-author">Arundhati Roy</span>
+              </div>
+            </div>
+            <h4>The God of Small Things</h4>
+            <span class="book-author">Arundhati Roy</span>
+            <div class="reco-add-btn">+ Add to shelf</div>
+          </div>
+
+          <div class="reco-card">
+            <div class="reco-card-cover">
+              <div class="cover-art" style="background: linear-gradient(160deg, #2a1a3a, #5a3a6a);">
+                <span class="cover-title">The Kite Runner</span>
+                <span class="cover-author">Khaled Hosseini</span>
+              </div>
+            </div>
+            <h4>The Kite Runner</h4>
+            <span class="book-author">Khaled Hosseini</span>
+            <div class="reco-add-btn">+ Add to shelf</div>
+          </div>
+
+          <div class="reco-card">
+            <div class="reco-card-cover">
+              <div class="cover-art" style="background: linear-gradient(160deg, #4a2a1a, #7a5a2a);">
+                <span class="cover-title">Middlesex</span>
+                <span class="cover-author">Jeffrey Eugenides</span>
+              </div>
+            </div>
+            <h4>Middlesex</h4>
+            <span class="book-author">Jeffrey Eugenides</span>
+            <div class="reco-add-btn">+ Add to shelf</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Top rated in your genres -->
+      <div class="reco-row animate-in delay-4">
+        <div class="reco-row-header">
+          <div>
+            <h2>Top rated in Literary Fiction</h2>
+            <span class="reco-reason">Popular among readers with similar taste</span>
+          </div>
+          <a href="#" class="see-all">See all &rarr;</a>
+        </div>
+        <div class="reco-scroll">
+          <div class="reco-card">
+            <div class="reco-card-cover">
+              <div class="cover-art" style="background: linear-gradient(160deg, #3a3a1a, #6a6a3a);">
+                <span class="cover-title">Hamnet</span>
+                <span class="cover-author">Maggie O'Farrell</span>
+              </div>
+            </div>
+            <h4>Hamnet</h4>
+            <span class="book-author">Maggie O'Farrell</span>
+            <div class="star-rating star-rating-sm">
+              <span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span>
+            </div>
+            <div class="reco-add-btn">+ Add to shelf</div>
+          </div>
+
+          <div class="reco-card">
+            <div class="reco-card-cover">
+              <div class="cover-art" style="background: linear-gradient(160deg, #1a2a4a, #3a5a8a);">
+                <span class="cover-title">A Little Life</span>
+                <span class="cover-author">Hanya Yanagihara</span>
+              </div>
+            </div>
+            <h4>A Little Life</h4>
+            <span class="book-author">Hanya Yanagihara</span>
+            <div class="star-rating star-rating-sm">
+              <span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star filled">&#9733;</span><span class="star">&#9733;</span>
+            </div>
+            <div class="reco-add-btn">+ Add to shelf</div>
+          </div>
+
+          <div class="reco-card">
+            <div class="reco-card-cover">
+              <div class="cover-art" style="background: linear-gradient(160deg, #4a1a2a, #8a3a5a);">
+                <span class="cover-title">Normal People</span>
+                <span class="cover-author">Sally Rooney</span>
+              </div>
+            </div>
+            <h4>Normal People</h4>
+            <span class="book-author">Sally Rooney</span>
+            <div class="reco-add-btn">+ Add to shelf</div>
+          </div>
+
+          <div class="reco-card">
+            <div class="reco-card-cover">
+              <div class="cover-art" style="background: linear-gradient(160deg, #2a4a3a, #4a7a5a);">
+                <span class="cover-title">Shuggie Bain</span>
+                <span class="cover-author">Douglas Stuart</span>
+              </div>
+            </div>
+            <h4>Shuggie Bain</h4>
+            <span class="book-author">Douglas Stuart</span>
+            <div class="reco-add-btn">+ Add to shelf</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========== 7. DESIGN TOKENS ========== -->
+  <section id="tokens" class="screen-section tokens-section">
+    <span class="screen-label">07 / Design Tokens</span>
+
+    <div class="tokens-grid">
+      <!-- Colors -->
+      <div class="token-group">
+        <h3>Color Palette</h3>
+        <div class="color-swatches">
+          <div class="color-swatch">
+            <div class="swatch" style="background: #F8FAFC;"></div>
+            <span class="swatch-label">Surface</span>
+            <span class="swatch-hex">#F8FAFC</span>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch" style="background: #FFFFFF; border: 1.5px solid #E2E8F0;"></div>
+            <span class="swatch-label">White</span>
+            <span class="swatch-hex">#FFFFFF</span>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch" style="background: #059669;"></div>
+            <span class="swatch-label">Emerald</span>
+            <span class="swatch-hex">#059669</span>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch" style="background: #10B981;"></div>
+            <span class="swatch-label">Green</span>
+            <span class="swatch-hex">#10B981</span>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch" style="background: #D1FAE5;"></div>
+            <span class="swatch-label">Green Light</span>
+            <span class="swatch-hex">#D1FAE5</span>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch" style="background: #F59E0B;"></div>
+            <span class="swatch-label">Amber</span>
+            <span class="swatch-hex">#F59E0B</span>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch" style="background: #0F172A;"></div>
+            <span class="swatch-label">Text</span>
+            <span class="swatch-hex">#0F172A</span>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch" style="background: #475569;"></div>
+            <span class="swatch-label">Secondary</span>
+            <span class="swatch-hex">#475569</span>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch" style="background: #94A3B8;"></div>
+            <span class="swatch-label">Tertiary</span>
+            <span class="swatch-hex">#94A3B8</span>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch" style="background: #E2E8F0;"></div>
+            <span class="swatch-label">Border</span>
+            <span class="swatch-hex">#E2E8F0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Typography -->
+      <div class="token-group">
+        <h3>Typography</h3>
+        <div class="type-samples">
+          <div class="type-sample">
+            <div class="sample-label">Display XL &mdash; Fraunces 48px</div>
+            <div class="display-xl" style="font-family: var(--font-display); font-size: 48px; font-weight: 400; letter-spacing: -0.03em;">Your reading life</div>
+          </div>
+          <div class="type-sample">
+            <div class="sample-label">Display LG &mdash; Fraunces 32px</div>
+            <div style="font-family: var(--font-display); font-size: 32px; font-weight: 400; letter-spacing: -0.02em;">My Library</div>
+          </div>
+          <div class="type-sample">
+            <div class="sample-label">Display MD &mdash; Fraunces 22px</div>
+            <div style="font-family: var(--font-display); font-size: 22px; font-weight: 500;">About this book</div>
+          </div>
+          <div class="type-sample">
+            <div class="sample-label">Body LG &mdash; Bricolage Grotesque 17px</div>
+            <div style="font-family: var(--font-body); font-size: 17px; color: var(--text-secondary); line-height: 1.7;">Track what you're reading, curate your shelves, and finally leave Goodreads behind.</div>
+          </div>
+          <div class="type-sample">
+            <div class="sample-label">Body MD &mdash; Bricolage Grotesque 14px</div>
+            <div style="font-family: var(--font-body); font-size: 14px; color: var(--text-secondary);">559 pages &bull; September 1992 &bull; Literary Fiction</div>
+          </div>
+          <div class="type-sample">
+            <div class="sample-label">Label &mdash; Bricolage Grotesque 11px</div>
+            <div style="font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary);">CURRENTLY READING &bull; 3 BOOKS</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const toggle = document.getElementById('themeToggle');
+    const options = toggle.querySelectorAll('.theme-toggle-option');
+
+    // Check system preference on load
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
+      options[0].classList.remove('active');
+      options[1].classList.add('active');
+    }
+
+    // Listen for system preference changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (e.matches) {
+        document.documentElement.classList.add('dark');
+        options[0].classList.remove('active');
+        options[1].classList.add('active');
+      } else {
+        document.documentElement.classList.remove('dark');
+        options[1].classList.remove('active');
+        options[0].classList.add('active');
+      }
+    });
+
+    // Manual toggle
+    toggle.addEventListener('click', (e) => {
+      const target = e.target.closest('.theme-toggle-option');
+      if (!target) return;
+      options.forEach(o => o.classList.remove('active'));
+      target.classList.add('active');
+      if (target.dataset.theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    });
+  </script>
+</body>
+</html>

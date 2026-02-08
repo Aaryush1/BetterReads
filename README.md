@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BetterReads
+
+A modern Goodreads alternative for avid readers. Fast, beautiful, and focused on the core reading experience.
+
+## Vision
+
+Goodreads hasn't meaningfully evolved in over a decade. BetterReads is what a book tracking platform looks like when built today — clean design inspired by apps like Literal and StoryGraph, instant interactions, and a focus on what readers actually need.
+
+## Tech Stack
+
+- **Frontend:** Next.js (App Router), React, TypeScript, Tailwind CSS
+- **Auth + Database:** Supabase (Postgres + Auth)
+- **Book Data:** Google Books API + Open Library API
+- **Hosting:** Vercel
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/          # Next.js App Router pages
+├── components/   # Reusable UI components
+├── lib/          # Utilities, API clients, helpers
+└── types/        # TypeScript type definitions
 
-## Learn More
+docs/             # PRDs, plans, and task tracking for all features
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Development Process
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+All features follow a structured workflow documented in `CLAUDE.md`:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **PRD** — Define the problem, goals, user stories, and acceptance criteria
+2. **Technical Plan** — Architecture decisions, data model, component breakdown
+3. **Phased Tasks** — Sequential implementation phases, each with a testing checklist
