@@ -129,9 +129,9 @@ docs/
 ## Current State
 
 - **Active Project:** MVP (see `docs/mvp/`)
-- **Current Phase:** Phase 2 — Authentication (IN PROGRESS)
-- **What's done:** Phase 1 complete (design tokens, fonts, ThemeProvider, Navbar, ThemeToggle, layout wrappers, Supabase client utils, landing page, BookCover, TypeScript types, DB schema SQL, Supabase project created, env vars, schema deployed, QA passed)
-- **What's left:** Auth pages (login/signup), route protection in proxy, logout, user context in Navbar
+- **Current Phase:** Phase 3 — Book Search & Detail (IN PROGRESS)
+- **What's done:** Phase 1 (Foundation), Phase 2 (Authentication) complete
+- **What's left:** Google Books + Open Library API integration, search page, book detail page, SearchBar, BookCard
 - **Docs:**
   - PRD: `docs/mvp/prd.md` (APPROVED)
   - Design: `docs/mvp/design-vision.html`

@@ -1,6 +1,6 @@
 # Phase 2: Authentication
 
-## Status: IN PROGRESS
+## Status: COMPLETE
 
 ## Overview
 Implement sign up, log in, log out, and route protection. After this phase, users can create accounts and access protected pages. Unauthenticated users are redirected to login.
@@ -35,16 +35,16 @@ Implement sign up, log in, log out, and route protection. After this phase, user
 - [x] Display user initial in Navbar avatar (first letter of email)
 
 ## Testing Checklist
-- [ ] New user can sign up with email and password
-- [ ] Existing user can log in
-- [ ] Invalid credentials show error message
-- [ ] After login, user lands on `/library`
-- [ ] Visiting `/library` while logged out redirects to `/login`
-- [ ] Visiting `/login` while logged in redirects to `/library`
-- [ ] Logout clears session and redirects to landing page
-- [ ] Session persists across page refresh (cookie-based)
-- [ ] Auth pages render correctly in both light and dark mode
-- [ ] Auth pages are responsive on mobile
+- [x] New user can sign up with email and password
+- [x] Existing user can log in
+- [x] Invalid credentials show error message
+- [x] After login, user lands on `/library`
+- [x] Visiting `/library` while logged out redirects to `/login`
+- [x] Visiting `/login` while logged in redirects to `/library`
+- [x] Logout clears session and redirects to landing page
+- [x] Session persists across page refresh (cookie-based)
+- [x] Auth pages render correctly in both light and dark mode
+- [x] Auth pages are responsive on mobile
 
 ## Notes
 - For MVP, we use email/password auth only. OAuth (Google, GitHub) can be added later.

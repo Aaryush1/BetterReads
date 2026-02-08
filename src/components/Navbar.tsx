@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
+import SearchBar from "./SearchBar";
 import ThemeToggle from "./ThemeToggle";
 
 const navTabs = [
@@ -77,14 +78,8 @@ export default function Navbar({ userEmail }: NavbarProps) {
           })}
         </div>
 
-        {/* Search bar placeholder */}
-        <div className="ml-auto flex max-w-xs flex-1 items-center gap-2 rounded-full border border-border bg-bg-warm px-4 py-2 text-sm text-text-tertiary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          <span>Search books...</span>
-        </div>
+        {/* Search bar */}
+        <SearchBar className="ml-auto max-w-xs flex-1" />
 
         {/* Right side: theme toggle + avatar with menu */}
         <div className="flex items-center gap-3">
