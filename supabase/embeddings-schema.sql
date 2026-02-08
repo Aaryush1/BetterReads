@@ -10,7 +10,7 @@ CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA extensions;
 -- BOOK EMBEDDINGS TABLE
 -- ============================================
 CREATE TABLE book_embeddings (
-  google_book_id  TEXT PRIMARY KEY,
+  book_id  TEXT PRIMARY KEY,
   embedding       extensions.vector(1536) NOT NULL,
   title           TEXT NOT NULL,
   author          TEXT,
@@ -34,7 +34,7 @@ CREATE OR REPLACE FUNCTION match_books(
   match_count INT DEFAULT 30
 )
 RETURNS TABLE (
-  google_book_id TEXT,
+  book_id TEXT,
   title TEXT,
   author TEXT,
   genre TEXT,
@@ -45,7 +45,7 @@ RETURNS TABLE (
 LANGUAGE sql STABLE
 AS $$
   SELECT
-    b.google_book_id,
+    b.book_id,
     b.title,
     b.author,
     b.genre,
@@ -53,7 +53,7 @@ AS $$
     b.cover_url,
     1 - (b.embedding <=> query_embedding) AS similarity
   FROM book_embeddings b
-  WHERE b.google_book_id != ALL(exclude_ids)
+  WHERE b.book_id != ALL(exclude_ids)
   ORDER BY b.embedding <=> query_embedding
   LIMIT match_count;
 $$;

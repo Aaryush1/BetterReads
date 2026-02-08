@@ -1,11 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const BASE_URL = "https://www.googleapis.com/books/v1/volumes";
+const SEARCH_URL = "https://openlibrary.org/search.json";
 
 /**
- * Lightweight suggest endpoint — only Google Books, maxResults=5.
- * Used for the search-as-you-type dropdown. Intentionally minimal
- * to stay within the free API tier (1,000 req/day).
+ * Lightweight suggest endpoint using Open Library.
+ * Used for the search-as-you-type dropdown.
  */
 export async function GET(request: NextRequest) {
   const query = request.nextUrl.searchParams.get("q")?.trim();
@@ -14,18 +13,15 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ suggestions: [] });
   }
 
-  const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ suggestions: [] });
-  }
-
-  const url = new URL(BASE_URL);
-  url.searchParams.set("q", query);
-  url.searchParams.set("key", apiKey);
-  url.searchParams.set("maxResults", "5");
-  url.searchParams.set("fields", "items(id,volumeInfo/title,volumeInfo/authors,volumeInfo/imageLinks/smallThumbnail)");
-
   try {
+    const url = new URL(SEARCH_URL);
+    url.searchParams.set("q", query);
+    url.searchParams.set("limit", "5");
+    url.searchParams.set(
+      "fields",
+      "key,title,author_name,cover_i"
+    );
+
     const res = await fetch(url.toString(), { next: { revalidate: 3600 } });
     if (!res.ok) {
       return NextResponse.json({ suggestions: [] });
@@ -33,11 +29,13 @@ export async function GET(request: NextRequest) {
 
     const data = await res.json();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const suggestions = (data.items ?? []).map((v: any) => ({
-      googleBookId: v.id,
-      title: v.volumeInfo?.title ?? "Untitled",
-      author: v.volumeInfo?.authors?.join(", ") ?? "Unknown Author",
-      coverUrl: v.volumeInfo?.imageLinks?.smallThumbnail?.replace(/^http:/, "https:") ?? null,
+    const suggestions = (data.docs ?? []).map((doc: any) => ({
+      googleBookId: `ol:${(doc.key as string).replace("/works/", "")}`,
+      title: doc.title ?? "Untitled",
+      author: doc.author_name?.join(", ") ?? "Unknown Author",
+      coverUrl: doc.cover_i
+        ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-S.jpg`
+        : null,
     }));
 
     return NextResponse.json({ suggestions });

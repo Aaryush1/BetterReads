@@ -423,10 +423,10 @@ async function embedAndStoreBatch(books: BookRecord[]): Promise<number> {
     const chunk = ids.slice(i, i + 200);
     const { data: existing } = await supabase
       .from("book_embeddings")
-      .select("google_book_id")
-      .in("google_book_id", chunk);
+      .select("book_id")
+      .in("book_id", chunk);
     for (const r of existing ?? []) {
-      existingIds.add(r.google_book_id);
+      existingIds.add(r.book_id);
     }
   }
 
@@ -447,7 +447,7 @@ async function embedAndStoreBatch(books: BookRecord[]): Promise<number> {
       });
 
       const rows = response.data.map((item, idx) => ({
-        google_book_id: chunk[idx].googleBookId,
+        book_id: chunk[idx].googleBookId,
         embedding: item.embedding,
         title: chunk[idx].title,
         author: chunk[idx].author,

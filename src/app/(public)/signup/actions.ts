@@ -24,7 +24,7 @@ export async function signup(
     return { error: "Password must be at least 6 characters." };
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -34,6 +34,14 @@ export async function signup(
 
   if (error) {
     return { error: error.message };
+  }
+
+  // Supabase doesn't error on duplicate emails (to prevent enumeration).
+  // Instead it returns a user with an empty identities array.
+  if (data.user && data.user.identities?.length === 0) {
+    return {
+      error: "An account with this email already exists. Please sign in instead.",
+    };
   }
 
   revalidatePath("/", "layout");

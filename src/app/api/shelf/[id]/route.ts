@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { embedBookIfNeeded } from "@/lib/embeddings";
 
 export async function PATCH(
   request: Request,
@@ -36,6 +37,15 @@ export async function PATCH(
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Fire-and-forget: ensure book has an embedding when rated
+  if (body.rating !== undefined) {
+    embedBookIfNeeded(book.google_book_id, {
+      title: book.title,
+      author: book.author,
+      coverUrl: book.cover_url,
+    }).catch(() => {});
   }
 
   return NextResponse.json({

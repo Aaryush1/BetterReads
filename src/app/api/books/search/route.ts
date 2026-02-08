@@ -11,13 +11,13 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Fetch from both APIs in parallel
-    const [googleResults, olResults] = await Promise.all([
-      searchGoogle(query),
+    // Fetch from both APIs in parallel, OL is primary
+    const [olResults, googleResults] = await Promise.all([
       searchOpenLibrary(query),
+      searchGoogle(query),
     ]);
 
-    const books = mergeResults(googleResults, olResults);
+    const books = mergeResults(olResults, googleResults);
 
     return NextResponse.json({ books, error: null });
   } catch (err) {

@@ -1,8 +1,17 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getBook } from "@/lib/google-books";
+import { getBook as getGoogleBook } from "@/lib/google-books";
+import { getBook as getOpenLibraryBook } from "@/lib/open-library";
 import BookCover from "@/components/BookCover";
 import BookShelfStatus from "@/components/BookShelfStatus";
+import type { Book } from "@/types/book";
+
+async function getBookById(id: string): Promise<Book | null> {
+  if (id.startsWith("ol:")) {
+    return getOpenLibraryBook(id.slice(3));
+  }
+  return getGoogleBook(id);
+}
 
 export async function generateMetadata({
   params,
@@ -10,7 +19,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const book = await getBook(id);
+  const book = await getBookById(id);
   return {
     title: book ? `${book.title} — BetterReads` : "Book — BetterReads",
   };
@@ -22,7 +31,7 @@ export default async function BookDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const book = await getBook(id);
+  const book = await getBookById(id);
 
   if (!book) {
     notFound();

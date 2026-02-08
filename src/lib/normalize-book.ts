@@ -1,40 +1,40 @@
 import type { Book } from "@/types/book";
 
 /**
- * Merge Google Books (primary) with Open Library (supplemental) results.
- * Open Library fills in missing covers and data for Google Books results,
- * and adds unique titles not found in Google Books.
+ * Merge Open Library (primary) with Google Books (supplemental) results.
+ * Google Books fills in missing data for OL results,
+ * and adds unique titles not found in Open Library.
  */
 export function mergeResults(
-  googleBooks: Book[],
-  openLibraryBooks: Book[]
+  openLibraryBooks: Book[],
+  googleBooks: Book[]
 ): Book[] {
-  // Start with Google Books as primary
-  const merged = [...googleBooks];
+  // Start with Open Library as primary
+  const merged = [...openLibraryBooks];
   const seenTitles = new Set(
-    googleBooks.map((b) => normalizeTitle(b.title))
+    openLibraryBooks.map((b) => normalizeTitle(b.title))
   );
 
-  // Supplement: fill missing covers from Open Library
-  for (const gb of merged) {
-    if (gb.coverUrl) continue;
+  // Supplement: fill missing covers from Google Books
+  for (const ol of merged) {
+    if (ol.coverUrl) continue;
 
-    const match = openLibraryBooks.find(
-      (ol) =>
-        normalizeTitle(ol.title) === normalizeTitle(gb.title) &&
-        hasAuthorOverlap(gb.author, ol.author)
+    const match = googleBooks.find(
+      (gb) =>
+        normalizeTitle(gb.title) === normalizeTitle(ol.title) &&
+        hasAuthorOverlap(ol.author, gb.author)
     );
     if (match?.coverUrl) {
-      gb.coverUrl = match.coverUrl;
+      ol.coverUrl = match.coverUrl;
     }
   }
 
-  // Add unique Open Library results not already in Google Books
-  for (const ol of openLibraryBooks) {
-    const normalized = normalizeTitle(ol.title);
+  // Add unique Google Books results not already in Open Library
+  for (const gb of googleBooks) {
+    const normalized = normalizeTitle(gb.title);
     if (!seenTitles.has(normalized)) {
       seenTitles.add(normalized);
-      merged.push(ol);
+      merged.push(gb);
     }
   }
 

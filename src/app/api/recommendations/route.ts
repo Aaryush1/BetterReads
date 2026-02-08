@@ -1,5 +1,13 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { adminClient } from "@/lib/supabase/admin";
+import { buildBookText, generateEmbeddings } from "@/lib/embeddings";
+import { computeTasteVector } from "@/lib/taste-vector";
+import {
+  clusterByAnchor,
+  generateReason,
+} from "@/lib/recommendation-clusters";
+import type { Candidate, AnchorBook } from "@/lib/recommendation-clusters";
 import type { Book } from "@/types/book";
 
 interface RecommendationRow {
@@ -8,50 +16,71 @@ interface RecommendationRow {
   books: Book[];
 }
 
-const BASE_URL = "https://www.googleapis.com/books/v1/volumes";
-
-async function searchGoogleBooks(query: string, maxResults = 6): Promise<Book[]> {
-  const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
-  if (!apiKey) return [];
-
-  const url = new URL(BASE_URL);
-  url.searchParams.set("q", query);
-  url.searchParams.set("key", apiKey);
-  url.searchParams.set("maxResults", String(maxResults));
-  url.searchParams.set("orderBy", "relevance");
-
-  try {
-    const res = await fetch(url.toString(), { next: { revalidate: 3600 } });
-    if (!res.ok) return [];
-    const data = await res.json();
-    if (!data.items) return [];
-
-    return data.items.map(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (v: any): Book => ({
-        googleBookId: v.id,
-        title: v.volumeInfo?.title ?? "Untitled",
-        author: v.volumeInfo?.authors?.join(", ") ?? "Unknown Author",
-        coverUrl: v.volumeInfo?.imageLinks?.thumbnail?.replace(/^http:/, "https:") ?? null,
-        description: v.volumeInfo?.description ?? null,
-        pageCount: v.volumeInfo?.pageCount ?? null,
-        publishedDate: v.volumeInfo?.publishedDate ?? null,
-        genre: v.volumeInfo?.categories?.[0] ?? null,
-        isbn: null,
-      })
-    );
-  } catch {
-    return [];
-  }
+/** Parse pgvector string representation to number[] */
+function parseEmbedding(raw: unknown): number[] {
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "string") return JSON.parse(raw);
+  throw new Error("Invalid embedding format");
 }
 
-/** Curated fallback queries for users with no rated books */
+/** Map a match_books candidate row to a Book */
+function candidateToBook(c: Candidate): Book {
+  return {
+    googleBookId: c.book_id,
+    title: c.title,
+    author: c.author ?? "Unknown Author",
+    coverUrl: c.cover_url ?? null,
+    description: c.description ?? null,
+    pageCount: null,
+    publishedDate: null,
+    genre: c.genre ?? null,
+    isbn: null,
+  };
+}
+
+/* ── Fallback: keyword-based via Open Library ── */
+
+import { searchBooks as searchOpenLibrary } from "@/lib/open-library";
+
 const FALLBACK_QUERIES = [
-  { query: "bestseller fiction 2024", reason: "Popular Fiction" },
-  { query: "classic literature must read", reason: "Classic Literature" },
-  { query: "best science fiction fantasy", reason: "Sci-Fi & Fantasy" },
-  { query: "best mystery thriller", reason: "Mystery & Thriller" },
+  { query: "popular fiction bestseller", reason: "Popular Fiction" },
+  { query: "classic literature novels", reason: "Classic Literature" },
+  { query: "science fiction fantasy", reason: "Sci-Fi & Fantasy" },
+  { query: "mystery thriller suspense", reason: "Mystery & Thriller" },
 ];
+
+async function fallbackRecommendations(
+  excludeIds: Set<string>
+): Promise<NextResponse> {
+  const rows: RecommendationRow[] = [];
+  const seen = new Set<string>();
+
+  const results = await Promise.all(
+    FALLBACK_QUERIES.map(async ({ query, reason }) => {
+      const books = await searchOpenLibrary(query);
+      return { reason, books };
+    })
+  );
+
+  for (const { reason, books } of results) {
+    const filtered = books.filter(
+      (b) => !excludeIds.has(b.googleBookId) && !seen.has(b.googleBookId)
+    );
+    filtered.forEach((b) => seen.add(b.googleBookId));
+
+    if (filtered.length > 0) {
+      rows.push({
+        reason,
+        sourceBook: null,
+        books: filtered.slice(0, 6),
+      });
+    }
+  }
+
+  return NextResponse.json({ rows });
+}
+
+/* ── Main handler: embedding-based recommendations ── */
 
 export async function GET() {
   const supabase = await createClient();
@@ -63,105 +92,159 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Get user's books with ratings
-  const { data: userBooks } = await supabase
+  // Fetch all user books (for exclusion + rated subset)
+  const { data: allUserBooks } = await supabase
     .from("user_books")
-    .select("google_book_id, title, author, rating, shelves(name)")
-    .eq("user_id", user.id)
-    .order("rating", { ascending: false });
+    .select("google_book_id, title, author, rating, cover_url")
+    .eq("user_id", user.id);
 
-  const allUserBooks = userBooks ?? [];
-  const userBookIds = new Set(allUserBooks.map((b) => b.google_book_id));
-
-  // Get highly-rated books (rating >= 4)
-  const topRated = allUserBooks.filter(
-    (b) => b.rating != null && Number(b.rating) >= 4
+  const userBookIds = new Set(
+    (allUserBooks ?? []).map((b) => b.google_book_id)
   );
+  const ratedBooks = (allUserBooks ?? []).filter((b) => b.rating != null);
 
-  const rows: RecommendationRow[] = [];
-
-  if (topRated.length > 0) {
-    // "Because you liked X" — search for similar books by author or title keywords
-    const seen = new Set<string>();
-    // Limit to 3 source books to avoid too many API calls
-    const sources = topRated.slice(0, 3);
-
-    const results = await Promise.all(
-      sources.map(async (book) => {
-        const authorQuery = book.author
-          ? `inauthor:${book.author}`
-          : book.title;
-        const books = await searchGoogleBooks(authorQuery, 8);
-        return { book, books };
-      })
-    );
-
-    for (const { book, books } of results) {
-      const filtered = books.filter(
-        (b) => !userBookIds.has(b.googleBookId) && !seen.has(b.googleBookId)
-      );
-      filtered.forEach((b) => seen.add(b.googleBookId));
-
-      if (filtered.length > 0) {
-        rows.push({
-          reason: `Because you liked "${book.title}"`,
-          sourceBook: { title: book.title, author: book.author },
-          books: filtered.slice(0, 6),
-        });
-      }
-    }
-
-    // Genre-based recommendations from user's shelf
-    const genres = allUserBooks
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((b: any) => b.shelves?.name)
-      .filter(Boolean);
-    const uniqueGenres = [...new Set(genres)];
-
-    if (uniqueGenres.length > 0 && rows.length < 4) {
-      // Search for popular books in the user's shelf categories
-      const genreBooks = await searchGoogleBooks(
-        `best books ${uniqueGenres[0]}`,
-        8
-      );
-      const filtered = genreBooks.filter(
-        (b) => !userBookIds.has(b.googleBookId) && !seen.has(b.googleBookId)
-      );
-      if (filtered.length > 0) {
-        rows.push({
-          reason: "Recommended for you",
-          sourceBook: null,
-          books: filtered.slice(0, 6),
-        });
-      }
-    }
+  // No rated books → fallback to curated keyword search
+  if (ratedBooks.length === 0) {
+    return fallbackRecommendations(userBookIds);
   }
 
-  // If we have no rows (no rated books or searches returned nothing), use fallback
-  if (rows.length === 0) {
-    const seen = new Set<string>();
-    const results = await Promise.all(
-      FALLBACK_QUERIES.map(async ({ query, reason }) => {
-        const books = await searchGoogleBooks(query, 8);
-        return { reason, books };
-      })
+  try {
+    // 1. Fetch existing embeddings for the user's rated books
+    const ratedIds = ratedBooks.map((b) => b.google_book_id);
+    const { data: embRows } = await supabase
+      .from("book_embeddings")
+      .select("book_id, embedding")
+      .in("book_id", ratedIds);
+
+    const embeddingsMap = new Map<string, number[]>();
+    for (const row of embRows ?? []) {
+      embeddingsMap.set(row.book_id, parseEmbedding(row.embedding));
+    }
+
+    // 2. Generate embeddings on-the-fly for rated books that don't have them
+    const missingBooks = ratedBooks.filter(
+      (b) => !embeddingsMap.has(b.google_book_id)
     );
 
-    for (const { reason, books } of results) {
-      const filtered = books.filter(
-        (b) => !userBookIds.has(b.googleBookId) && !seen.has(b.googleBookId)
-      );
-      filtered.forEach((b) => seen.add(b.googleBookId));
+    if (missingBooks.length > 0) {
+      try {
+        const texts = missingBooks.map((b) =>
+          buildBookText({ title: b.title, author: b.author })
+        );
+        const newEmbeddings = await generateEmbeddings(texts);
 
-      if (filtered.length > 0) {
-        rows.push({
-          reason,
-          sourceBook: null,
-          books: filtered.slice(0, 6),
-        });
+        for (let i = 0; i < missingBooks.length; i++) {
+          embeddingsMap.set(missingBooks[i].google_book_id, newEmbeddings[i]);
+        }
+
+        // Fire-and-forget: store new embeddings for future requests
+        const rows = missingBooks.map((b, i) => ({
+          book_id: b.google_book_id,
+          embedding: newEmbeddings[i],
+          title: b.title,
+          author: b.author ?? null,
+          genre: null,
+          description: null,
+          cover_url: b.cover_url ?? null,
+        }));
+        Promise.resolve(adminClient.from("book_embeddings").upsert(rows)).catch(
+          () => {}
+        );
+      } catch {
+        // If on-the-fly generation fails, continue with whatever we have
       }
     }
-  }
 
-  return NextResponse.json({ rows });
+    // If we still have no embeddings at all, fall back
+    if (embeddingsMap.size === 0) {
+      return fallbackRecommendations(userBookIds);
+    }
+
+    // 3. Compute taste vector (positive + negative signals)
+    const ratedWithRating = ratedBooks.map((b) => ({
+      googleBookId: b.google_book_id,
+      rating: Number(b.rating),
+    }));
+
+    const tasteVector = computeTasteVector(ratedWithRating, embeddingsMap);
+    if (!tasteVector) {
+      return fallbackRecommendations(userBookIds);
+    }
+
+    // 4. Nearest-neighbor search via match_books RPC
+    const { data: candidates, error: rpcError } = await supabase.rpc(
+      "match_books",
+      {
+        query_embedding: tasteVector,
+        exclude_ids: Array.from(userBookIds),
+        match_count: 40,
+      }
+    );
+
+    if (rpcError || !candidates || candidates.length < 6) {
+      return fallbackRecommendations(userBookIds);
+    }
+
+    // 5. Fetch candidate embeddings for anchor matching
+    const candidateIds = (candidates as Candidate[]).map(
+      (c) => c.book_id
+    );
+    const { data: candEmbRows } = await supabase
+      .from("book_embeddings")
+      .select("book_id, embedding")
+      .in("book_id", candidateIds);
+
+    const candidateEmbeddings = new Map<string, number[]>();
+    for (const row of candEmbRows ?? []) {
+      candidateEmbeddings.set(
+        row.book_id,
+        parseEmbedding(row.embedding)
+      );
+    }
+
+    // 6. Build anchor list from positively-rated books (rating >= 3)
+    const anchors: AnchorBook[] = ratedBooks
+      .filter(
+        (b) =>
+          Number(b.rating) >= 3 && embeddingsMap.has(b.google_book_id)
+      )
+      .map((b) => ({
+        googleBookId: b.google_book_id,
+        title: b.title,
+        author: b.author,
+        embedding: embeddingsMap.get(b.google_book_id)!,
+        rating: Number(b.rating),
+      }));
+
+    if (anchors.length === 0) {
+      return fallbackRecommendations(userBookIds);
+    }
+
+    // 7. Cluster candidates by anchor + generate reasons
+    const clusters = clusterByAnchor(
+      candidates as Candidate[],
+      anchors,
+      candidateEmbeddings
+    );
+
+    const rows: RecommendationRow[] = clusters
+      .filter((c) => c.candidates.length > 0)
+      .map((cluster) => ({
+        reason: generateReason(cluster),
+        sourceBook: {
+          title: cluster.anchor.title,
+          author: cluster.anchor.author,
+        },
+        books: cluster.candidates.slice(0, 6).map(candidateToBook),
+      }));
+
+    if (rows.length === 0) {
+      return fallbackRecommendations(userBookIds);
+    }
+
+    return NextResponse.json({ rows });
+  } catch (error) {
+    console.error("Recommendation engine error:", error);
+    return fallbackRecommendations(userBookIds);
+  }
 }

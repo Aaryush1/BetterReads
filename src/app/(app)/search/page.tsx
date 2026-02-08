@@ -12,11 +12,11 @@ async function fetchBooks(query: string): Promise<{ books: Book[]; error: string
   const { mergeResults } = await import("@/lib/normalize-book");
 
   try {
-    const [googleResults, olResults] = await Promise.all([
-      searchGoogle(query),
+    const [olResults, googleResults] = await Promise.all([
       searchOpenLibrary(query),
+      searchGoogle(query),
     ]);
-    return { books: mergeResults(googleResults, olResults), error: null };
+    return { books: mergeResults(olResults, googleResults), error: null };
   } catch {
     return { books: [], error: "Failed to search books." };
   }

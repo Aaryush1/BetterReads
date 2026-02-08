@@ -30,16 +30,16 @@ export default function LandingPage() {
             Discover
           </Link>
           <Link
-            href="/login"
-            className="rounded-[var(--radius-md)] px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-black/[0.03] hover:text-text-primary dark:hover:bg-white/[0.04] sm:px-4"
+            href="/signup"
+            className="hidden rounded-[var(--radius-md)] px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-black/[0.03] hover:text-text-primary dark:hover:bg-white/[0.04] sm:inline-flex"
           >
-            Log in
+            Sign up
           </Link>
           <Link
-            href="/signup"
+            href="/login"
             className="rounded-full bg-green-deep px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-medium sm:px-5"
           >
-            Get started
+            Log in
           </Link>
         </div>
       </nav>
@@ -60,7 +60,7 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
             <Link
-              href="/signup"
+              href="/login"
               className="inline-flex items-center gap-2 rounded-full bg-green-deep px-8 py-3.5 text-[15px] font-semibold text-white shadow-[0_2px_12px_rgba(5,150,105,0.35)] transition-all hover:-translate-y-0.5 hover:bg-green-medium hover:shadow-[0_6px_20px_rgba(5,150,105,0.35)]"
             >
               Start reading &rarr;

@@ -1,5 +1,7 @@
 import OpenAI from "openai";
 import { adminClient } from "@/lib/supabase/admin";
+import { getBook as getGoogleBook } from "@/lib/google-books";
+import { getBook as getOpenLibraryBook } from "@/lib/open-library";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -43,6 +45,21 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 }
 
 /**
+ * Generates embeddings for multiple texts in a single API call.
+ * Returns an array of embeddings in the same order as the input texts.
+ */
+export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
+  if (texts.length === 0) return [];
+
+  const response = await openai.embeddings.create({
+    model: "text-embedding-3-small",
+    input: texts,
+  });
+
+  return response.data.map((item) => item.embedding);
+}
+
+/**
  * Embeds a single book: checks if already embedded, generates embedding, upserts.
  * Skips if the book is already in book_embeddings.
  */
@@ -53,8 +70,8 @@ export async function embedBook(
   // Check if already embedded
   const { data: existing } = await adminClient
     .from("book_embeddings")
-    .select("google_book_id")
-    .eq("google_book_id", googleBookId)
+    .select("book_id")
+    .eq("book_id", googleBookId)
     .single();
 
   if (existing) return;
@@ -63,7 +80,7 @@ export async function embedBook(
   const embedding = await generateEmbedding(text);
 
   const { error } = await adminClient.from("book_embeddings").upsert({
-    google_book_id: googleBookId,
+    book_id: googleBookId,
     embedding,
     title: book.title,
     author: book.author || null,
@@ -94,10 +111,10 @@ export async function embedBooks(
   const ids = books.map((b) => b.googleBookId);
   const { data: existingRows } = await adminClient
     .from("book_embeddings")
-    .select("google_book_id")
-    .in("google_book_id", ids);
+    .select("book_id")
+    .in("book_id", ids);
 
-  const existingIds = new Set(existingRows?.map((r) => r.google_book_id) ?? []);
+  const existingIds = new Set(existingRows?.map((r) => r.book_id) ?? []);
   const toEmbed = books.filter((b) => !existingIds.has(b.googleBookId));
   skipped = books.length - toEmbed.length;
 
@@ -116,7 +133,7 @@ export async function embedBooks(
 
       // Upsert all embeddings from this chunk
       const rows = response.data.map((item, idx) => ({
-        google_book_id: chunk[idx].googleBookId,
+        book_id: chunk[idx].googleBookId,
         embedding: item.embedding,
         title: chunk[idx].title,
         author: chunk[idx].author || null,
@@ -142,4 +159,50 @@ export async function embedBooks(
   }
 
   return { embedded, skipped, failed };
+}
+
+/**
+ * Embeds a book if it doesn't already have an embedding.
+ * For OL IDs, fetches from Open Library. For Google IDs, fetches from Google Books.
+ * Designed to be called fire-and-forget from shelf/rating handlers.
+ */
+export async function embedBookIfNeeded(
+  bookId: string,
+  fallback: { title: string; author?: string | null; coverUrl?: string | null }
+): Promise<void> {
+  // Check if already embedded
+  const { data: existing } = await adminClient
+    .from("book_embeddings")
+    .select("book_id")
+    .eq("book_id", bookId)
+    .single();
+
+  if (existing) return;
+
+  // Fetch full details for richer embedding (description + genre)
+  let meta: BookMetadata = {
+    title: fallback.title,
+    author: fallback.author,
+    coverUrl: fallback.coverUrl,
+  };
+
+  try {
+    const fullBook = bookId.startsWith("ol:")
+      ? await getOpenLibraryBook(bookId.slice(3))
+      : await getGoogleBook(bookId);
+
+    if (fullBook) {
+      meta = {
+        title: fullBook.title,
+        author: fullBook.author,
+        genre: fullBook.genre,
+        description: fullBook.description,
+        coverUrl: fullBook.coverUrl,
+      };
+    }
+  } catch {
+    // Use fallback metadata if fetch fails
+  }
+
+  await embedBook(bookId, meta);
 }
