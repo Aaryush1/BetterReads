@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getBook } from "@/lib/google-books";
 import BookCover from "@/components/BookCover";
+import BookShelfStatus from "@/components/BookShelfStatus";
 
 export async function generateMetadata({
   params,
@@ -33,14 +34,15 @@ export default async function BookDetailPage({
       <div className="shrink-0 md:w-[240px]">
         <BookCover src={book.coverUrl} title={book.title} size="lg" className="mx-auto md:mx-0" />
 
-        {/* Shelf action buttons (non-functional, wired in Phase 4) */}
-        <div className="mt-5 flex flex-col gap-2">
-          <button className="flex items-center justify-center gap-2 rounded-[var(--radius-md)] bg-green-deep px-4 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-green-medium">
-            + Want to Read
-          </button>
-          <button className="rounded-[var(--radius-md)] border-[1.5px] border-border bg-bg-card px-4 py-2.5 text-[13px] font-medium text-text-secondary transition-colors hover:border-text-secondary">
-            Change shelf &darr;
-          </button>
+        {/* Shelf actions */}
+        <div className="mt-5">
+          <BookShelfStatus
+            googleBookId={book.googleBookId}
+            title={book.title}
+            author={book.author}
+            coverUrl={book.coverUrl}
+            variant="full"
+          />
         </div>
       </div>
 

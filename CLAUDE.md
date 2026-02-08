@@ -129,9 +129,9 @@ docs/
 ## Current State
 
 - **Active Project:** MVP (see `docs/mvp/`)
-- **Current Phase:** Phase 3 — Book Search & Detail (IN PROGRESS)
-- **What's done:** Phase 1 (Foundation), Phase 2 (Authentication) complete
-- **What's left:** Google Books + Open Library API integration, search page, book detail page, SearchBar, BookCard
+- **Current Phase:** Phase 4 — Shelves (IN PROGRESS)
+- **What's done:** Phase 1 (Foundation), Phase 2 (Authentication), Phase 3 (Book Search & Detail) complete
+- **What's left:** Shelves API, user books API, ShelfSelector, ShelfManager, Library page, wire shelf actions
 - **Docs:**
   - PRD: `docs/mvp/prd.md` (APPROVED)
   - Design: `docs/mvp/design-vision.html`

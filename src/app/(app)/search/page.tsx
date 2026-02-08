@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import type { Book } from "@/types/book";
-import BookCover from "@/components/BookCover";
-import Link from "next/link";
+import SearchResults from "@/components/SearchResults";
 
 export const metadata: Metadata = {
   title: "Search — BetterReads",
@@ -72,49 +71,7 @@ export default async function SearchPage({
       )}
 
       {/* Results list */}
-      {books.length > 0 && (
-        <div className="flex flex-col gap-4 pb-12">
-          {books.map((book) => (
-            <Link
-              key={book.googleBookId}
-              href={`/book/${book.googleBookId}`}
-              className="group flex gap-5 rounded-[var(--radius-lg)] border border-border-light bg-bg-card p-5 shadow-[var(--shadow-sm)] transition-all hover:translate-x-1 hover:border-border hover:shadow-[var(--shadow-md)]"
-            >
-              {/* Cover */}
-              <div className="shrink-0">
-                <BookCover src={book.coverUrl} title={book.title} size="sm" />
-              </div>
-
-              {/* Info */}
-              <div className="flex min-w-0 flex-1 flex-col justify-center">
-                <h3 className="font-display text-lg font-medium tracking-tight text-text-primary">
-                  {book.title}
-                </h3>
-                <p className="mb-2 text-sm text-text-secondary">
-                  {book.author}
-                </p>
-                {book.description && (
-                  <p className="line-clamp-2 text-[13px] leading-relaxed text-text-tertiary">
-                    {book.description}
-                  </p>
-                )}
-                <div className="mt-2 flex gap-3 text-xs text-text-tertiary">
-                  {book.pageCount && <span>{book.pageCount} pages</span>}
-                  {book.publishedDate && <span>{book.publishedDate}</span>}
-                  {book.genre && <span>{book.genre}</span>}
-                </div>
-              </div>
-
-              {/* Action button (non-functional, wired in Phase 4) */}
-              <div className="hidden items-center sm:flex">
-                <span className="whitespace-nowrap rounded-full border-[1.5px] border-green-deep/12 bg-green-light px-[18px] py-2 text-[13px] font-semibold text-green-deep transition-colors group-hover:border-green-deep group-hover:bg-green-deep group-hover:text-white">
-                  + Add to shelf
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
+      {books.length > 0 && <SearchResults books={books} />}
     </div>
   );
 }
