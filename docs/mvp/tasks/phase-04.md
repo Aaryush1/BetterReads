@@ -1,6 +1,6 @@
 # Phase 4: Shelves
 
-## Status: IN PROGRESS
+## Status: COMPLETE
 
 ## Overview
 Users can add books to shelves, manage custom shelves, view their library, and move/remove books. After this phase, the core book-tracking workflow is fully functional — including creating, renaming, and deleting custom shelves.

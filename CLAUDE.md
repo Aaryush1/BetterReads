@@ -129,9 +129,9 @@ docs/
 ## Current State
 
 - **Active Project:** MVP (see `docs/mvp/`)
-- **Current Phase:** Phase 4 — Shelves (IN PROGRESS)
-- **What's done:** Phase 1 (Foundation), Phase 2 (Authentication), Phase 3 (Book Search & Detail) complete
-- **What's left:** Shelves API, user books API, ShelfSelector, ShelfManager, Library page, wire shelf actions
+- **Current Phase:** Phase 5 — Ratings & Recommendations (IN PROGRESS)
+- **What's done:** Phase 1 (Foundation), Phase 2 (Authentication), Phase 3 (Book Search & Detail), Phase 4 (Shelves) complete
+- **What's left:** Testing checklist for Phase 5, then Phase 6 (Polish & QA)
 - **Docs:**
   - PRD: `docs/mvp/prd.md` (APPROVED)
   - Design: `docs/mvp/design-vision.html`

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import BookCover from "./BookCover";
+import StarRating from "./StarRating";
 import ShelfSelector from "./ShelfSelector";
 import type { Book, UserBook } from "@/types/book";
 
@@ -67,7 +68,10 @@ export default function SearchResults({ books }: SearchResultsProps) {
                   {book.description}
                 </p>
               )}
-              <div className="mt-2 flex gap-3 text-xs text-text-tertiary">
+              <div className="mt-2 flex items-center gap-3 text-xs text-text-tertiary">
+                {ub?.rating != null && (
+                  <StarRating value={ub.rating} size="sm" readOnly />
+                )}
                 {book.pageCount && <span>{book.pageCount} pages</span>}
                 {book.publishedDate && <span>{book.publishedDate}</span>}
                 {book.genre && <span>{book.genre}</span>}

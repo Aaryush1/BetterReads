@@ -55,23 +55,6 @@ export default async function BookDetailPage({
           by <span className="font-medium text-green-deep">{book.author}</span>
         </p>
 
-        {/* Star rating placeholder (non-functional, wired in Phase 5) */}
-        <div className="mt-6 flex items-center gap-4">
-          <span className="text-sm font-medium text-text-secondary">
-            Your rating
-          </span>
-          <div className="flex gap-0.5">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <span
-                key={star}
-                className="cursor-pointer text-[22px] text-border transition-colors hover:text-amber"
-              >
-                &#9733;
-              </span>
-            ))}
-          </div>
-        </div>
-
         {/* Metadata bar */}
         <div className="mt-6 flex flex-wrap gap-6 border-b border-border-light pb-7">
           {book.pageCount && (

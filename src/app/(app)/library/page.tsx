@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Shelf, UserBook } from "@/types/book";
 import BookCover from "@/components/BookCover";
+import StarRating from "@/components/StarRating";
 import ShelfManager from "@/components/ShelfManager";
 import Link from "next/link";
 
@@ -143,6 +144,11 @@ export default function LibraryPage() {
                   {book.title}
                 </p>
                 <p className="truncate text-xs text-text-tertiary">{book.author}</p>
+                {book.rating != null && (
+                  <div className="mt-1">
+                    <StarRating value={book.rating} size="sm" readOnly />
+                  </div>
+                )}
               </div>
             </Link>
           ))}
