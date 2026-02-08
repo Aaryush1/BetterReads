@@ -1,6 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+// Routes that require authentication
+const protectedPaths = ["/library", "/search", "/book", "/discover"];
+
+// Routes that should redirect to /library if already authenticated
+const authPaths = ["/login", "/signup"];
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -26,7 +32,31 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Refresh the session — important for Server Components
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const pathname = request.nextUrl.pathname;
+
+  // Redirect unauthenticated users away from protected routes
+  if (
+    !user &&
+    protectedPaths.some((path) => pathname.startsWith(path))
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
+  // Redirect authenticated users away from auth pages
+  if (
+    user &&
+    authPaths.some((path) => pathname.startsWith(path))
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/library";
+    return NextResponse.redirect(url);
+  }
 
   return supabaseResponse;
 }

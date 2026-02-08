@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
 import ThemeToggle from "./ThemeToggle";
 
 const navTabs = [
@@ -9,8 +10,41 @@ const navTabs = [
   { label: "Discover", href: "/discover" },
 ];
 
-export default function Navbar() {
+interface NavbarProps {
+  userEmail?: string | null;
+}
+
+export default function Navbar({ userEmail }: NavbarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
+
+  const initial = userEmail ? userEmail[0].toUpperCase() : "?";
+
+  async function handleSignOut() {
+    setMenuOpen(false);
+    const res = await fetch("/auth/signout", { method: "POST" });
+    if (res.redirected) {
+      router.push(res.url);
+    } else {
+      router.push("/");
+    }
+    router.refresh();
+  }
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-bg-cream/80 backdrop-blur-md">
@@ -52,11 +86,33 @@ export default function Navbar() {
           <span>Search books...</span>
         </div>
 
-        {/* Right side: avatar + theme toggle */}
+        {/* Right side: theme toggle + avatar with menu */}
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-light text-sm font-semibold text-copper">
-            ?
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-light text-sm font-semibold text-copper transition-shadow hover:ring-2 hover:ring-amber"
+            >
+              {initial}
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-[12px] border border-border bg-bg-card shadow-md">
+                {userEmail && (
+                  <div className="border-b border-border px-4 py-3">
+                    <p className="truncate text-sm font-medium text-text-primary">
+                      {userEmail}
+                    </p>
+                  </div>
+                )}
+                <button
+                  onClick={handleSignOut}
+                  className="w-full px-4 py-3 text-left text-sm text-text-secondary transition-colors hover:bg-bg-warm hover:text-text-primary"
+                >
+                  Sign out
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

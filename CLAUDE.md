@@ -104,6 +104,7 @@ docs/
 - **Auth proxy:** `src/proxy.ts` uses `@supabase/ssr` for session refresh (Next.js 16 `proxy` convention, replaces `middleware`)
 - **Database schema:** `supabase/schema.sql` — run in Supabase SQL Editor
 - **Route groups:** `(app)` for authenticated pages (has Navbar), `(public)` for landing/auth pages (no Navbar)
+- **Auth:** Server actions for login/signup (in `actions.ts` co-located with pages), `useActionState` for inline error display, signout via API route (`/auth/signout`)
 - **Environment:** `.env.local` for secrets (already in `.gitignore`), `.env.local.example` for template
 
 ---
@@ -128,9 +129,9 @@ docs/
 ## Current State
 
 - **Active Project:** MVP (see `docs/mvp/`)
-- **Current Phase:** Phase 1 — Foundation (IN PROGRESS)
-- **What's done:** Design tokens, fonts, ThemeProvider, Navbar, ThemeToggle, layout wrappers, Supabase client utils, landing page, BookCover, TypeScript types, DB schema SQL
-- **What's left:** Create Supabase project + env vars, run schema SQL, manual QA (dark mode, responsiveness, fonts)
+- **Current Phase:** Phase 2 — Authentication (IN PROGRESS)
+- **What's done:** Phase 1 complete (design tokens, fonts, ThemeProvider, Navbar, ThemeToggle, layout wrappers, Supabase client utils, landing page, BookCover, TypeScript types, DB schema SQL, Supabase project created, env vars, schema deployed, QA passed)
+- **What's left:** Auth pages (login/signup), route protection in proxy, logout, user context in Navbar
 - **Docs:**
   - PRD: `docs/mvp/prd.md` (APPROVED)
   - Design: `docs/mvp/design-vision.html`
