@@ -37,6 +37,84 @@ function mapToBook(doc: OpenLibraryDoc): Book {
   };
 }
 
+/**
+ * Fetch a single book by Open Library work ID (e.g. "OL12345W").
+ * Fetches the work endpoint for description, then search for additional metadata.
+ */
+export async function getBook(workId: string): Promise<Book | null> {
+  try {
+    // Fetch work details (has description)
+    const workRes = await fetch(
+      `https://openlibrary.org/works/${encodeURIComponent(workId)}.json`,
+      { next: { revalidate: 3600 } }
+    );
+    if (!workRes.ok) return null;
+
+    const work = await workRes.json();
+
+    // Extract description (can be string or { type, value } object)
+    let description: string | null = null;
+    if (typeof work.description === "string") {
+      description = work.description;
+    } else if (work.description?.value) {
+      description = work.description.value;
+    }
+
+    // Get title from work
+    const title = work.title ?? "Untitled";
+
+    // Fetch search data for author, cover, page count, etc.
+    const searchRes = await fetch(
+      `https://openlibrary.org/search.json?q=${encodeURIComponent(title)}&fields=key,title,author_name,cover_i,first_publish_year,number_of_pages_median,subject,isbn&limit=5`,
+      { next: { revalidate: 3600 } }
+    );
+
+    let author = "Unknown Author";
+    let coverUrl: string | null = null;
+    let pageCount: number | null = null;
+    let publishedDate: string | null = null;
+    let genre: string | null = null;
+    let isbn: string | null = null;
+
+    if (searchRes.ok) {
+      const searchData: OpenLibrarySearchResponse = await searchRes.json();
+      // Find the matching work in search results
+      const match = searchData.docs.find(
+        (d) => d.key === `/works/${workId}`
+      ) ?? searchData.docs[0];
+
+      if (match) {
+        author = match.author_name?.join(", ") ?? "Unknown Author";
+        coverUrl = buildCoverUrl(match.cover_i);
+        pageCount = match.number_of_pages_median ?? null;
+        publishedDate = match.first_publish_year?.toString() ?? null;
+        genre = match.subject?.[0] ?? null;
+        isbn = match.isbn?.[0] ?? null;
+      }
+    }
+
+    // Use cover from work if search didn't find one
+    if (!coverUrl && work.covers?.[0]) {
+      coverUrl = buildCoverUrl(work.covers[0]);
+    }
+
+    return {
+      googleBookId: `ol:${workId}`,
+      title,
+      author,
+      coverUrl,
+      description,
+      pageCount,
+      publishedDate,
+      genre,
+      isbn,
+    };
+  } catch (err) {
+    console.error("Open Library getBook error:", err);
+    return null;
+  }
+}
+
 export async function searchBooks(query: string): Promise<Book[]> {
   const url = new URL(SEARCH_URL);
   url.searchParams.set("q", query);

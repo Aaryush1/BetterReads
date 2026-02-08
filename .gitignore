@@ -25,6 +25,9 @@
 *.pem
 package-lock.json
 
+# seed script checkpoint
+scripts/.seed-checkpoint.json
+
 # debug
 npm-debug.log*
 yarn-debug.log*
