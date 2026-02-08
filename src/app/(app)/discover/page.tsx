@@ -83,9 +83,9 @@ export default function DiscoverPage() {
           </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-10">
+        <div className="stagger-children flex flex-col gap-10">
           {rows.map((row, i) => (
-            <section key={i}>
+            <section key={i} className="animate-fade-in-up">
               {/* Row header */}
               <div className="mb-4 flex items-baseline justify-between">
                 <h2 className="font-display text-xl font-medium tracking-tight text-text-primary">
@@ -100,7 +100,7 @@ export default function DiscoverPage() {
                   return (
                     <div
                       key={book.googleBookId}
-                      className="flex w-[150px] shrink-0 flex-col gap-2"
+                      className="flex w-[150px] shrink-0 flex-col gap-2 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1"
                     >
                       <Link
                         href={`/book/${book.googleBookId}`}

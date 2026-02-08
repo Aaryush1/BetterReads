@@ -31,7 +31,7 @@ export default async function BookDetailPage({
   return (
     <div className="flex flex-col gap-10 pb-12 md:flex-row md:gap-12">
       {/* Left: Cover + shelf actions */}
-      <div className="shrink-0 md:w-[240px]">
+      <div className="animate-fade-in-up shrink-0 md:w-[240px]">
         <BookCover src={book.coverUrl} title={book.title} size="lg" className="mx-auto md:mx-0" />
 
         {/* Shelf actions */}
@@ -47,7 +47,7 @@ export default async function BookDetailPage({
       </div>
 
       {/* Right: Book info */}
-      <div className="flex-1">
+      <div className="animate-fade-in-up flex-1" style={{ animationDelay: "100ms" }}>
         <h1 className="font-display text-4xl font-normal tracking-tight leading-tight text-text-primary">
           {book.title}
         </h1>

@@ -115,6 +115,36 @@
 }
 
 /* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Staggered children delays */
+.stagger-children > :nth-child(1) { animation-delay: 0ms; }
+.stagger-children > :nth-child(2) { animation-delay: 60ms; }
+.stagger-children > :nth-child(3) { animation-delay: 120ms; }
+.stagger-children > :nth-child(4) { animation-delay: 180ms; }
+.stagger-children > :nth-child(5) { animation-delay: 240ms; }
+.stagger-children > :nth-child(6) { animation-delay: 300ms; }
+.stagger-children > :nth-child(7) { animation-delay: 360ms; }
+.stagger-children > :nth-child(8) { animation-delay: 420ms; }
+.stagger-children > :nth-child(9) { animation-delay: 480ms; }
+.stagger-children > :nth-child(10) { animation-delay: 540ms; }
+
+/* ============================================
    BASE STYLES
    ============================================ */
 body {
@@ -122,4 +152,11 @@ body {
   color: var(--text-primary);
   font-family: var(--font-body);
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Smooth transitions for theme-aware elements */
+*, *::before, *::after {
+  transition-property: background-color, border-color;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
 }

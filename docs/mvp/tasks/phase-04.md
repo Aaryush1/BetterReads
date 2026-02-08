@@ -95,28 +95,28 @@ Users can add books to shelves, manage custom shelves, view their library, and m
 - [x] Revert on error with toast/notification
 
 ## Testing Checklist
-- [ ] User can add a book to "Want to Read" from book detail page
-- [ ] User can add a book to a custom shelf from book detail page
-- [ ] User can add a book to a shelf from search results
-- [ ] User can change a book's shelf (e.g., "Want to Read" → "Currently Reading")
-- [ ] User can move a book to a custom shelf
-- [ ] User can remove a book from a shelf
-- [ ] Library page shows all shelf tabs (default + custom) with correct counts
-- [ ] Switching shelf tabs filters the book grid
-- [ ] Empty shelf shows appropriate empty state message
-- [ ] User can create a custom shelf with a custom name
-- [ ] User can rename a custom shelf
-- [ ] User can delete a custom shelf (with confirmation)
-- [ ] Default shelves cannot be deleted
-- [ ] Deleting a shelf removes its books from the library
-- [ ] Duplicate shelf name is handled gracefully
-- [ ] ShelfSelector dropdown shows all shelves (default + custom)
-- [ ] Book added by User A is not visible to User B (RLS works)
-- [ ] Duplicate add attempt is handled gracefully (not crash)
-- [ ] Shelf status is reflected on book detail page (shows current shelf name)
-- [ ] Shelf status is reflected on search results (shows "On shelf" vs "+ Add")
-- [ ] All shelf operations work in both light and dark mode
-- [ ] Library page is responsive on mobile
+- [x] User can add a book to "Want to Read" from book detail page
+- [x] User can add a book to a custom shelf from book detail page
+- [x] User can add a book to a shelf from search results
+- [x] User can change a book's shelf (e.g., "Want to Read" → "Currently Reading")
+- [x] User can move a book to a custom shelf
+- [x] User can remove a book from a shelf
+- [x] Library page shows all shelf tabs (default + custom) with correct counts
+- [x] Switching shelf tabs filters the book grid
+- [x] Empty shelf shows appropriate empty state message
+- [x] User can create a custom shelf with a custom name
+- [x] User can rename a custom shelf
+- [x] User can delete a custom shelf (with confirmation)
+- [x] Default shelves cannot be deleted
+- [x] Deleting a shelf removes its books from the library
+- [x] Duplicate shelf name is handled gracefully
+- [x] ShelfSelector dropdown shows all shelves (default + custom)
+- [x] Book added by User A is not visible to User B (RLS works)
+- [x] Duplicate add attempt is handled gracefully (not crash)
+- [x] Shelf status is reflected on book detail page (shows current shelf name)
+- [x] Shelf status is reflected on search results (shows "On shelf" vs "+ Add")
+- [x] All shelf operations work in both light and dark mode
+- [x] Library page is responsive on mobile
 
 ## Notes
 - The `user_books` table UNIQUE constraint on `(user_id, google_book_id)` prevents duplicates at the DB level. The API should catch this and return a clear error.

@@ -36,6 +36,7 @@ export default function BookCover({
           alt={`Cover of ${title}`}
           width={width}
           height={height}
+          sizes={`${width}px`}
           className="h-full w-full object-cover"
         />
       ) : (

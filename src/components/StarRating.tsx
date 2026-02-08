@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, useCallback } from "react";
 
 interface StarRatingProps {
   /** Current rating value (0.5–5.0 in 0.5 steps, or null) */
@@ -33,18 +33,52 @@ export default function StarRating({
   const { star: starSize, gap } = sizes[size];
   const interactive = !readOnly && !!onChange;
 
-  function handleClick(rating: number) {
-    if (!interactive) return;
-    // Click on current rating to remove it
-    if (value === rating) {
-      onChange(null);
-    } else {
-      onChange(rating);
-    }
-  }
+  const handleClick = useCallback(
+    (rating: number) => {
+      if (!interactive) return;
+      if (value === rating) {
+        onChange(null);
+      } else {
+        onChange(rating);
+      }
+    },
+    [interactive, value, onChange],
+  );
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (!interactive) return;
+      const current = value ?? 0;
+      if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+        e.preventDefault();
+        const next = Math.min(5, current + 0.5);
+        onChange!(next);
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+        e.preventDefault();
+        const prev = current - 0.5;
+        if (prev < 0.5) {
+          onChange!(null);
+        } else {
+          onChange!(prev);
+        }
+      }
+    },
+    [interactive, value, onChange],
+  );
 
   return (
-    <div className="flex items-center" style={{ gap }}>
+    <div
+      className="flex items-center"
+      style={{ gap }}
+      role={interactive ? "slider" : "img"}
+      aria-label={value != null ? `Rating: ${value} out of 5 stars` : "No rating"}
+      aria-valuemin={interactive ? 0 : undefined}
+      aria-valuemax={interactive ? 5 : undefined}
+      aria-valuenow={interactive ? (value ?? 0) : undefined}
+      aria-valuetext={interactive ? (value != null ? `${value} out of 5` : "No rating") : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      onKeyDown={interactive ? handleKeyDown : undefined}
+    >
       <div
         className="flex"
         style={{ gap }}
@@ -98,8 +132,9 @@ function Star({ index, fillAmount, size, interactive, onHoverHalf, onClick }: St
 
   return (
     <span
-      className={`relative inline-block ${interactive ? "cursor-pointer" : ""}`}
+      className={`relative inline-block transition-transform duration-150 ${interactive ? "cursor-pointer hover:scale-110" : ""}`}
       style={{ width: size, height: size }}
+      aria-hidden="true"
     >
       <svg
         width={size}

@@ -41,23 +41,23 @@ export default function SearchResults({ books }: SearchResultsProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4 pb-12">
+    <div className="stagger-children flex flex-col gap-4 pb-12">
       {books.map((book) => {
         const ub = userBooks.get(book.googleBookId);
         return (
           <div
             key={book.googleBookId}
-            className="group flex gap-5 rounded-[var(--radius-lg)] border border-border-light bg-bg-card p-5 shadow-[var(--shadow-sm)] transition-all hover:border-border hover:shadow-[var(--shadow-md)]"
+            className="animate-fade-in-up group flex flex-col gap-4 rounded-[var(--radius-lg)] border border-border-light bg-bg-card p-4 shadow-[var(--shadow-sm)] transition-all hover:translate-x-1 hover:border-border hover:shadow-[var(--shadow-md)] sm:flex-row sm:gap-5 sm:p-5"
           >
             {/* Cover */}
-            <Link href={`/book/${book.googleBookId}`} className="shrink-0">
+            <Link href={`/book/${book.googleBookId}`} className="shrink-0 self-center sm:self-start">
               <BookCover src={book.coverUrl} title={book.title} size="sm" />
             </Link>
 
             {/* Info */}
             <Link
               href={`/book/${book.googleBookId}`}
-              className="flex min-w-0 flex-1 flex-col justify-center"
+              className="flex min-w-0 flex-1 flex-col justify-center text-center sm:text-left"
             >
               <h3 className="font-display text-lg font-medium tracking-tight text-text-primary">
                 {book.title}
@@ -79,7 +79,7 @@ export default function SearchResults({ books }: SearchResultsProps) {
             </Link>
 
             {/* Shelf action */}
-            <div className="hidden items-center sm:flex">
+            <div className="flex items-center justify-center sm:justify-end">
               {loaded ? (
                 <ShelfSelector
                   googleBookId={book.googleBookId}

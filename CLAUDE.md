@@ -129,9 +129,9 @@ docs/
 ## Current State
 
 - **Active Project:** MVP (see `docs/mvp/`)
-- **Current Phase:** Phase 5 — Ratings & Recommendations (IN PROGRESS)
-- **What's done:** Phase 1 (Foundation), Phase 2 (Authentication), Phase 3 (Book Search & Detail), Phase 4 (Shelves) complete
-- **What's left:** Testing checklist for Phase 5, then Phase 6 (Polish & QA)
+- **Current Phase:** Phase 6 — Polish & QA (IN PROGRESS)
+- **What's done:** Phase 1 (Foundation), Phase 2 (Authentication), Phase 3 (Book Search & Detail), Phase 4 (Shelves), Phase 5 (Ratings & Recommendations) complete
+- **What's left:** Manual QA testing checklist for Phase 6, then MVP is ready to ship
 - **Docs:**
   - PRD: `docs/mvp/prd.md` (APPROVED)
   - Design: `docs/mvp/design-vision.html`

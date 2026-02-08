@@ -18,26 +18,26 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-bg-cream">
       {/* Nav */}
-      <nav className="flex items-center justify-between px-6 py-5 sm:px-12">
+      <nav className="flex items-center justify-between px-4 py-5 sm:px-12">
         <span className="font-display text-xl font-semibold italic tracking-tight text-green-deep">
           BetterReads
         </span>
         <div className="flex items-center gap-2">
           <Link
             href="/discover"
-            className="rounded-[var(--radius-md)] px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-black/[0.03] hover:text-text-primary dark:hover:bg-white/[0.04]"
+            className="hidden rounded-[var(--radius-md)] px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-black/[0.03] hover:text-text-primary dark:hover:bg-white/[0.04] sm:inline-flex"
           >
             Discover
           </Link>
           <Link
             href="/login"
-            className="rounded-[var(--radius-md)] px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-black/[0.03] hover:text-text-primary dark:hover:bg-white/[0.04]"
+            className="rounded-[var(--radius-md)] px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-black/[0.03] hover:text-text-primary dark:hover:bg-white/[0.04] sm:px-4"
           >
             Log in
           </Link>
           <Link
             href="/signup"
-            className="rounded-full bg-green-deep px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-medium"
+            className="rounded-full bg-green-deep px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-medium sm:px-5"
           >
             Get started
           </Link>
@@ -45,7 +45,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="mx-auto flex max-w-[1200px] flex-col items-center gap-16 px-6 py-16 sm:px-12 lg:flex-row lg:gap-20 lg:py-20">
+      <section className="mx-auto flex max-w-[1200px] flex-col items-center gap-12 px-6 py-12 sm:px-12 md:gap-16 md:py-16 lg:flex-row lg:gap-20 lg:py-20">
         {/* Text */}
         <div className="max-w-[480px] flex-1 text-center lg:text-left">
           <h1 className="mb-5 font-display text-4xl font-normal leading-[1.1] tracking-tight text-text-primary sm:text-5xl lg:text-[52px]">
@@ -58,7 +58,7 @@ export default function LandingPage() {
             leave Goodreads behind. Built for readers who care about the
             experience.
           </p>
-          <div className="flex items-center justify-center gap-3 lg:justify-start">
+          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
             <Link
               href="/signup"
               className="inline-flex items-center gap-2 rounded-full bg-green-deep px-8 py-3.5 text-[15px] font-semibold text-white shadow-[0_2px_12px_rgba(5,150,105,0.35)] transition-all hover:-translate-y-0.5 hover:bg-green-medium hover:shadow-[0_6px_20px_rgba(5,150,105,0.35)]"

@@ -172,6 +172,11 @@ export default function SearchBar({
             placeholder="Search books..."
             className="w-full bg-transparent text-text-primary placeholder:text-text-tertiary focus:outline-none"
             autoComplete="off"
+            aria-label="Search books"
+            role="combobox"
+            aria-expanded={open && suggestions.length > 0}
+            aria-controls="search-suggestions-listbox"
+            aria-haspopup="listbox"
           />
           {loading && (
             <div className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-border-light border-t-green-deep" />
@@ -181,7 +186,7 @@ export default function SearchBar({
 
       {/* Dropdown */}
       {open && suggestions.length > 0 && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1.5 overflow-hidden rounded-[var(--radius-md)] border border-border bg-bg-card shadow-[var(--shadow-lg)]">
+        <div id="search-suggestions-listbox" className="absolute left-0 right-0 top-full z-50 mt-1.5 overflow-hidden rounded-[var(--radius-md)] border border-border bg-bg-card shadow-[var(--shadow-lg)]" role="listbox" aria-label="Search suggestions">
           {suggestions.map((s, i) => (
             <Link
               key={s.googleBookId}
@@ -190,6 +195,8 @@ export default function SearchBar({
                 setOpen(false);
                 setQuery("");
               }}
+              role="option"
+              aria-selected={i === activeIndex}
               className={`flex items-center gap-3 px-3.5 py-2.5 transition-colors ${
                 i === activeIndex
                   ? "bg-green-subtle"

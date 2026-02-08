@@ -67,7 +67,7 @@ export default function LibraryPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-display text-3xl font-normal tracking-tight text-text-primary">
             My Library
@@ -131,12 +131,12 @@ export default function LibraryPage() {
 
       {/* Book grid */}
       {filteredBooks.length > 0 ? (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-6 pb-12">
+        <div className="stagger-children grid grid-cols-2 gap-5 pb-12 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {filteredBooks.map((book) => (
             <Link
               key={book.id}
               href={`/book/${book.googleBookId}`}
-              className="group flex cursor-pointer flex-col gap-2 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1.5"
+              className="animate-fade-in-up group flex cursor-pointer flex-col gap-2 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1.5"
             >
               <BookCover src={book.coverUrl} title={book.title} size="md" />
               <div className="min-w-0">
