@@ -92,12 +92,19 @@ docs/
 
 ## Code Standards
 
-- **Framework:** Next.js with App Router (`src/app/`)
+- **Framework:** Next.js 16 with App Router (`src/app/`)
 - **Language:** TypeScript (strict mode)
-- **Styling:** Tailwind CSS
+- **Styling:** Tailwind CSS v4 with design tokens as CSS variables in `globals.css`
 - **Components:** Place in `src/components/`
 - **Utilities:** Place in `src/lib/`
 - **Types:** Place in `src/types/`
+- **Fonts:** Fraunces (display/headings via `font-display`), Bricolage Grotesque (body/UI via `font-body`)
+- **Theming:** `next-themes` with `class` strategy; tokens in `:root` (light) and `.dark` (dark)
+- **Supabase:** Client utils in `src/lib/supabase/` — browser client, server client, middleware client
+- **Auth proxy:** `src/proxy.ts` uses `@supabase/ssr` for session refresh (Next.js 16 `proxy` convention, replaces `middleware`)
+- **Database schema:** `supabase/schema.sql` — run in Supabase SQL Editor
+- **Route groups:** `(app)` for authenticated pages (has Navbar), `(public)` for landing/auth pages (no Navbar)
+- **Environment:** `.env.local` for secrets (already in `.gitignore`), `.env.local.example` for template
 
 ---
 
@@ -121,8 +128,9 @@ docs/
 ## Current State
 
 - **Active Project:** MVP (see `docs/mvp/`)
-- **Status:** Technical plan complete — ready for Phase 1 implementation
-- **Current Phase:** Phase 1 — Foundation (NOT STARTED)
+- **Current Phase:** Phase 1 — Foundation (IN PROGRESS)
+- **What's done:** Design tokens, fonts, ThemeProvider, Navbar, ThemeToggle, layout wrappers, Supabase client utils, landing page, BookCover, TypeScript types, DB schema SQL
+- **What's left:** Create Supabase project + env vars, run schema SQL, manual QA (dark mode, responsiveness, fonts)
 - **Docs:**
   - PRD: `docs/mvp/prd.md` (APPROVED)
   - Design: `docs/mvp/design-vision.html`
